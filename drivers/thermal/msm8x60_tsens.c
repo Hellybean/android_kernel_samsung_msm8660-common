@@ -11,7 +11,7 @@
  *
  */
 /*
- * Qualcomm MSM8960 TSENS driver
+ * Qualcomm MSM8x60 TSENS driver
  *
  */
 
@@ -167,7 +167,7 @@ static int tsens_tz_degC_to_code(int degC, int sensor_num)
 	return code;
 }
 
-static void tsens8960_get_temp(int sensor_num, unsigned long *temp)
+static void tsens8x60_get_temp(int sensor_num, unsigned long *temp)
 {
 	unsigned int code;
 
@@ -191,7 +191,7 @@ static int tsens_tz_get_temp(struct thermal_zone_device *thermal,
 	if (!tm_sensor || tm_sensor->mode != THERMAL_DEVICE_ENABLED || !temp)
 		return -EINVAL;
 
-	tsens8960_get_temp(tm_sensor->sensor_num, temp);
+	tsens8x60_get_temp(tm_sensor->sensor_num, temp);
 
 	return 0;
 }
@@ -201,7 +201,7 @@ int tsens_get_temp(struct tsens_device *device, unsigned long *temp)
 	if (!tmdev)
 		return -ENODEV;
 
-	tsens8960_get_temp(device->sensor_num, temp);
+	tsens8x60_get_temp(device->sensor_num, temp);
 
 	return 0;
 }
@@ -599,13 +599,37 @@ static irqreturn_t tsens_isr(int irq, void *data)
 static void tsens8960_sensor_mode_init(void)
 {
 	unsigned int reg_cntl = 0;
+        unsigned int reg = 0, mask = 0, i = 0;
 
 	reg_cntl = readl_relaxed(TSENS_CNTL_ADDR);
 	if (tmdev->hw_type == MSM_8960 || tmdev->hw_type == MSM_9615) {
 		writel_relaxed(reg_cntl &
 				~((((1 << tmdev->tsens_num_sensor) - 1) >> 1)
 				<< (TSENS_SENSOR0_SHIFT + 1)), TSENS_CNTL_ADDR);
-		tmdev->sensor[TSENS_MAIN_SENSOR].mode = THERMAL_DEVICE_ENABLED;
+                tmdev->sensor[TSENS_MAIN_SENSOR].mode = THERMAL_DEVICE_ENABLED;
+
+                for (i = 1; i < tmdev->tsens_num_sensor; i++) {
+                        if (tmdev->sensor[i].mode == THERMAL_DEVICE_ENABLED)
+                                continue;
+
+		        reg = readl_relaxed(TSENS_CNTL_ADDR);
+		        mask = 1 << (i + TSENS_SENSOR0_SHIFT);
+			if ((mask != SENSOR0_EN) && !(reg & SENSOR0_EN)) {
+				pr_info("Main sensor not enabled\n");
+				return;
+			}
+			writel_relaxed(reg | TSENS_SW_RST, TSENS_CNTL_ADDR);
+			if (tmdev->hw_type == MSM_8960)
+				reg |= mask | TSENS_8960_SLP_CLK_ENA
+							| TSENS_EN;
+			else
+				reg |= mask | TSENS_8660_SLP_CLK_ENA
+							| TSENS_EN;
+			tmdev->prev_reading_avail = false;
+		        writel_relaxed(reg, TSENS_CNTL_ADDR);
+
+		        tmdev->sensor[i].mode = THERMAL_DEVICE_ENABLED;
+                }
 	}
 }
 
@@ -761,7 +785,7 @@ static int tsens_calib_sensors(void)
 {
 	int rc = -ENODEV;
 
-	if (tmdev->hw_type == MSM_8660)
+	if (tmdev->hw_type == MSM_8660 )
 		rc = tsens_calib_sensors8660();
 	else if (tmdev->hw_type == MSM_8960 || tmdev->hw_type == MSM_9615)
 		rc = tsens_calib_sensors8960();
