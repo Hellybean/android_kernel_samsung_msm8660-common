@@ -33,6 +33,20 @@ static int process_sdio_pending_irqs(struct mmc_host *host)
 	int i, ret, count;
 	unsigned char pending;
 
+	/*
+	 * If there is only 1 function registered
+	 * call irq directly without checking the CCCR registers.
+	 */
+	if ((card->host->caps & MMC_CAP_SDIO_IRQ) &&
+	    card->host->sdio_irqs && (card->sdio_funcs == 1))
+		for (i = 0; i < SDIO_MAX_FUNCS; i++) {
+			struct sdio_func *func = card->sdio_func[i];
+			if (func && func->irq_handler) {
+				func->irq_handler(func);
+				return 1;
+			}
+		}
+
 	ret = mmc_io_rw_direct(card, 0, 0, SDIO_CCCR_INTx, 0, &pending);
 	if (ret) {
 		printk(KERN_DEBUG "%s: error %d reading SDIO_CCCR_INTx\n",
