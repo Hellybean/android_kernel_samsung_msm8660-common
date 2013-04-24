@@ -1344,6 +1344,14 @@ config MSM_DALRPC
 	help
 	  Supports RPC calls to DAL devices on remote processor cores.
 
+config MSM_MPDEC
+  	bool "Enable kernel based mpdecision"
+  	depends on MSM_SMP
+  	default n
+  	help
+  	  This enables kernel based multi core control.
+ 	  (up/down hotplug based on load)
+
 config MSM_DALRPC_TEST
 	tristate "DAL RPC test module"
 	depends on (MSM_DALRPC && DEBUG_FS)
