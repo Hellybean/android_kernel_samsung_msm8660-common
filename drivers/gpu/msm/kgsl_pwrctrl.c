@@ -25,6 +25,10 @@
 #include "kgsl_device.h"
 #include "kgsl_trace.h"
 
+#ifdef CONFIG_KGSL_GPU_CTRL
+#include <linux/gpu_freq.h>
+#endif
+
 #define KGSL_PWRFLAGS_POWER_ON 0
 #define KGSL_PWRFLAGS_CLK_ON   1
 #define KGSL_PWRFLAGS_AXI_ON   2
@@ -116,8 +120,16 @@ void kgsl_pwrctrl_pwrlevel_change(struct kgsl_device *device,
 	int delta;
 	int level;
 
+#ifdef CONFIG_KGSL_GPU_CTRL
+	int diff = 0;
+#endif
+
 	/* Adjust the power level to the current constraints */
 	new_level = _adjust_pwrlevel(pwr, new_level);
+
+#ifdef CONFIG_KGSL_GPU_CTRL
+	diff = new_level - pwr->active_pwrlevel;
+#endif
 
 	if (new_level == pwr->active_pwrlevel)
 		return;
@@ -154,6 +166,18 @@ void kgsl_pwrctrl_pwrlevel_change(struct kgsl_device *device,
 		 */
 
 		while (level != new_level) {
+#ifdef CONFIG_KGSL_GPU_CTRL
+			if(diff == 1) {
+				// let the GPU scale down nautrally
+				clk_set_rate(pwr->grp_clks[0],
+					pwr->pwrlevels[level].gpu_freq);
+			} else {
+				// when scaling up, adhere to the max 3D level
+				if(pwr->num_pwrlevels == 7)
+					if (level <= gpu_3d_freq_phase)
+						break;
+			}	
+#endif
 			level += delta;
 
 			clk_set_rate(pwr->grp_clks[0],
