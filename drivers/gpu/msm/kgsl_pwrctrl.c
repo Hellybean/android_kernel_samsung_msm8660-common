@@ -702,7 +702,6 @@ static void kgsl_pwrctrl_busy_time(struct kgsl_device *device, bool on_time)
 		!test_bit(KGSL_PWRFLAGS_AXI_ON, &device->pwrctrl.power_flags)) {
 		update_statistics(device);
 	}
-}
 
 #ifdef CONFIG_CPU_FREQ_GOV_BADASS_GPU_CONTROL
   	if (on_time)
@@ -710,7 +709,7 @@ static void kgsl_pwrctrl_busy_time(struct kgsl_device *device, bool on_time)
   	else
   	  gpu_busy_state = false;
 #endif 
-
+}
 void kgsl_pwrctrl_clk(struct kgsl_device *device, int state,
 					  int requested_state)
 {
