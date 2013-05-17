@@ -400,6 +400,11 @@ config CPU_FREQ_DEFAULT_GOV_INTELLIDEMAND
 	  Use the CPUFreq governor 'intellidemand' as default. This is
 	  based on Ondemand with browsing detection based on GPU loading
 
+
+config CPU_FREQ_DEFAULT_GOV_SAMSUNG
+  	bool "samsung"
+  	select CPU_FREQ_GOV_SAMSUNG
+
 endchoice
 
 
@@ -824,6 +829,24 @@ config CPU_FREQ_GOV_INTELLIDEMAND_2_PHASE
 	help
 	  '2-phase' - This driver adds a new algo to save power
           
+config CPU_FREQ_GOV_SAMSUNG
+  	tristate "'samsung' cpufreq policy governor"
+  	select CPU_FREQ_TABLE
+
+  help
+    	'samsung' - Samsung Implementation. This driver adds a dynamic 
+    	cpufreq policy governor. The governor does a periodic polling and 
+    	changes frequency based on the CPU utilization.
+    	The support for this governor depends on CPU capability to
+    	do fast frequency switching (i.e, very low latency frequency
+    	transitions). 
+
+    	To compile this driver as a module, choose M here: the
+    	module will be called cpufreq_samsung.
+
+    	For details, take a look at linux/Documentation/cpu-freq.
+
+    	If in doubt, say N.
 
 config CPU_FREQ_MIN_TICKS
 	int "Ticks between governor polling interval."

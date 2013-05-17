@@ -497,6 +497,9 @@ extern struct cpufreq_governor cpufreq_gov_brazilianwax;
 #elif defined(CONFIG_CPU_FREQ_DEFAULT_GOV_SMARTASS)
 extern struct cpufreq_governor cpufreq_gov_smartass;
 #define CPUFREQ_DEFAULT_GOVERNOR	(&cpufreq_gov_smartass)
+#elif defined(CONFIG_CPU_FREQ_DEFAULT_GOV_SAMSUNG)
+extern struct cpufreq_governor cpufreq_gov_samsung;
+#define CPUFREQ_DEFAULT_GOVERNOR  (&cpufreq_gov_samsung)
 #endif
 
 
