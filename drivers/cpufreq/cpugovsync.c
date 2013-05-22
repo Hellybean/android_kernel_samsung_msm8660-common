@@ -44,7 +44,7 @@ int force_cpu_gov_sync_init(void)
 {
 	int retval;
 
-	force_cpu_gov_sync = 0;
+	force_cpu_gov_sync = 1;
 
         force_cpu_gov_sync_kobj = kobject_create_and_add("cpu_gov_sync", kernel_kobj);
         if (!force_cpu_gov_sync_kobj) {
