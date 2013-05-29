@@ -145,8 +145,12 @@ void kgsl_pwrctrl_pwrlevel_change(struct kgsl_device *device,
 	 * don't do this then the pwrlevel change won't take effect when the
 	 * clocks come back
 	 */
-
-	pwr->active_pwrlevel = new_level;
+	
+	/* 
+	 * move this down to correspond with user based GPU frequency scaling
+	 *
+	 *pwr->active_pwrlevel = new_level;
+	 */
 
 	if (test_bit(KGSL_PWRFLAGS_CLK_ON, &pwr->power_flags) ||
 		(device->state == KGSL_STATE_NAP)) {
@@ -166,6 +170,10 @@ void kgsl_pwrctrl_pwrlevel_change(struct kgsl_device *device,
 		 */
 
 		while (level != new_level) {
+			/*
+			 * incrementally update the GPU frequency power level
+		         */
+			pwr->active_pwrlevel = level;
 #ifdef CONFIG_KGSL_GPU_CTRL
 			if(diff == 1) {
 				// let the GPU scale down nautrally

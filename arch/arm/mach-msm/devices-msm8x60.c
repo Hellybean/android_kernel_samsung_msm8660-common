@@ -767,7 +767,7 @@ static struct msm_bus_vectors grp2d1_max_vectors[] = {
 #ifdef CONFIG_KGSL_GPU_CTRL
                 .ib = KGSL_CONVERT_TO_MBPS(2048),
 #else
-				.ib = KGSL_CONVERT_TO_MPBS(990),
+		.ib = KGSL_CONVERT_TO_MPBS(990),
 #endif
         },
 };
