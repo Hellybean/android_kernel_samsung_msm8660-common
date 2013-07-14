@@ -18,16 +18,11 @@
 #include <mach/msm_iomap.h>
 #include <mach/msm_bus.h>
 #include <linux/ktime.h>
-#include <linux/cpufreq.h>
 
 #include "kgsl.h"
 #include "kgsl_pwrscale.h"
 #include "kgsl_device.h"
 #include "kgsl_trace.h"
-
-#ifdef CONFIG_KGSL_GPU_CTRL
-#include <linux/gpu_freq.h>
-#endif
 
 #define KGSL_PWRFLAGS_POWER_ON 0
 #define KGSL_PWRFLAGS_CLK_ON   1
@@ -37,10 +32,6 @@
 #define GPU_SWFI_LATENCY	3
 #define UPDATE_BUSY_VAL		1000000
 #define UPDATE_BUSY		50
-
-#ifdef CONFIG_CPU_FREQ_GOV_BADASS_GPU_CONTROL
-	extern bool gpu_busy_state;
-#endif 
 
 struct clk_pair {
 	const char *name;
@@ -120,16 +111,8 @@ void kgsl_pwrctrl_pwrlevel_change(struct kgsl_device *device,
 	int delta;
 	int level;
 
-#ifdef CONFIG_KGSL_GPU_CTRL
-	int diff = 0;
-#endif
-
 	/* Adjust the power level to the current constraints */
 	new_level = _adjust_pwrlevel(pwr, new_level);
-
-#ifdef CONFIG_KGSL_GPU_CTRL
-	diff = new_level - pwr->active_pwrlevel;
-#endif
 
 	if (new_level == pwr->active_pwrlevel)
 		return;
@@ -139,6 +122,14 @@ void kgsl_pwrctrl_pwrlevel_change(struct kgsl_device *device,
 	update_clk_statistics(device, true);
 
 	level = pwr->active_pwrlevel;
+
+	/*
+	 * Set the active powerlevel first in case the clocks are off - if we
+	 * don't do this then the pwrlevel change won't take effect when the
+	 * clocks come back
+	 */
+
+	pwr->active_pwrlevel = new_level;
 
 	if (test_bit(KGSL_PWRFLAGS_CLK_ON, &pwr->power_flags) ||
 		(device->state == KGSL_STATE_NAP)) {
@@ -158,23 +149,10 @@ void kgsl_pwrctrl_pwrlevel_change(struct kgsl_device *device,
 		 */
 
 		while (level != new_level) {
-	        	/*
-       	 	 	 * Set the active powerlevel first in case the clocks are off - if we
-         	 	 * don't do this then the pwrlevel change won't take effect when the
-         	 	 * clocks come back
-          	 	 */
-
 			level += delta;
-			pwr->active_pwrlevel = level;
-			
-			clk_set_rate(pwr->grp_clks[0],
-                                pwr->pwrlevels[level].gpu_freq);
-		
-#ifdef CONFIG_KGSL_GPU_CTRL
-			if(diff < 1 && level  == gpu_3d_freq_phase)
-					break;
-#endif
 
+			clk_set_rate(pwr->grp_clks[0],
+				pwr->pwrlevels[level].gpu_freq);
 		}
 	}
 
@@ -719,14 +697,8 @@ static void kgsl_pwrctrl_busy_time(struct kgsl_device *device, bool on_time)
 		!test_bit(KGSL_PWRFLAGS_AXI_ON, &device->pwrctrl.power_flags)) {
 		update_statistics(device);
 	}
-
-#ifdef CONFIG_CPU_FREQ_GOV_BADASS_GPU_CONTROL
-  	if (on_time)
-  	  gpu_busy_state = true;
-  	else
-  	  gpu_busy_state = false;
-#endif 
 }
+
 void kgsl_pwrctrl_clk(struct kgsl_device *device, int state,
 					  int requested_state)
 {

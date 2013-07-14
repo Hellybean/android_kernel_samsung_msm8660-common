@@ -1370,14 +1370,6 @@ config MSM_MPDEC_INPUTBOOST_CPUMIN
 	help
 	  This pushes the cpu min speed to predefined values on input events.
 
-config KGSL_GPU_CTRL
-	bool "MSM KGSL GPU frequency control by CvD"
-	default y
-	help
-	  Allow for GPU overclock frequencies and sysfs
-	  interface for managing max GPU speed. 3D max 
-	  clock 320MHz, 2D max clock 266MHz.
-
 if CPU_FREQ_MSM
 
 config MSM_CPU_FREQ_SET_MIN_MAX
@@ -2477,8 +2469,8 @@ config COMPACTION_RETRY
 	  with many free pages being already there.
 
 config FORCE_FAST_CHARGE
-	bool "Force AC charge mode at will"
-	default y
-	help
-	  A simple sysfs interface to force adapters that
-	  are detected as USB to charge as AC. 
+  bool "Force AC charge mode at will"
+  default y
+  help
+    A simple sysfs interface to force adapters that
+    are detected as USB to charge as AC.

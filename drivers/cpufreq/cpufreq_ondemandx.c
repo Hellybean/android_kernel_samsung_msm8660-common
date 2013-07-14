@@ -154,7 +154,7 @@ static struct dbs_tuners {
 	.ignore_nice = 0,
 	.powersave_bias = 0,
 	.freq_boost_time = DEFAULT_FREQ_BOOST_TIME,
-	.boostfreq = MAX_FREQ_LIMIT,
+	.boostfreq = 1512000,
 	.sync_freq = 0,
 	.optimal_freq = 0,
 };

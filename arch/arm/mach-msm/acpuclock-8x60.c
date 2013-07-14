@@ -1,4 +1,4 @@
-/* Copyright (c) 2009-2011, The Linux Foundation. All rights reserved.
+/* Copyright (c) 2009-2013, The Linux Foundation. All rights reserved.
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License version 2 and
@@ -47,6 +47,7 @@
  * used for calibration should respect these limits. */
 #define L_VAL_SCPLL_CAL_MIN	0x08 /* =  432 MHz with 27MHz source */
 #define L_VAL_SCPLL_CAL_MAX	0x22 /* = 1836 MHz with 27MHz source */
+
 
 #define MIN_VDD_SC		700000 /* uV */
 #define MAX_VDD_SC		1350000 /* uV */
@@ -238,7 +239,7 @@ static struct clkctl_acpu_speed acpu_freq_tbl_slow[] = {
   { {1, 1},  648000,  ACPU_SCPLL, 0, 0, 1, 0x0C, L2(5),   900000, 0x03006000},
   { {1, 1},  702000,  ACPU_SCPLL, 0, 0, 1, 0x0D, L2(6),   900000, 0x03006000},
   { {1, 1},  756000,  ACPU_SCPLL, 0, 0, 1, 0x0E, L2(7),   925000, 0x03006000},
-  { {1, 1},  810000,  ACPU_SCPLL, 0, 0, 1, 0x0F, L2(8),   950000, 0x03006000},
+  { {1, 1},  810000,  ACPU_SCPLL, 0, 0, 1, 0x0F, L2(8),   975000, 0x03006000},
   { {1, 1},  864000,  ACPU_SCPLL, 0, 0, 1, 0x10, L2(9),   975000, 0x03006000},
   { {1, 1},  918000,  ACPU_SCPLL, 0, 0, 1, 0x11, L2(10), 1000000, 0x03006000},
   { {1, 1},  972000,  ACPU_SCPLL, 0, 0, 1, 0x12, L2(11), 1025000, 0x03006000},
@@ -259,7 +260,6 @@ static struct clkctl_acpu_speed acpu_freq_tbl_slow[] = {
   { {1, 1}, 1782000,  ACPU_SCPLL, 0, 0, 1, 0x21, L2(20), 1300000, 0x03006000},
   { {1, 1}, 1836000,  ACPU_SCPLL, 0, 0, 1, 0x22, L2(20), 1300000, 0x03006000},
   { {0, 0}, 0 },
-};
 
 /* SCPLL frequencies = 2 * 27 MHz * L_VAL */
 static struct clkctl_acpu_speed acpu_freq_tbl_nom[] = {
@@ -687,7 +687,6 @@ out:
 	return rc;
 }
 
-
 #ifdef CONFIG_VDD_USERSPACE
 ssize_t acpuclk_get_vdd_levels_str(char *buf) {
 	int i, len = 0;
@@ -723,7 +722,7 @@ void acpuclk_set_vdd(unsigned int khz, int vdd_uv) {
 	mutex_unlock(&drv_state.lock);
 }
 #endif
-
+ 
 static void __init scpll_init(int sc_pll)
 {
 	uint32_t regval;
@@ -846,7 +845,7 @@ static void __init bus_init(void)
 }
 
 #ifdef CONFIG_CPU_FREQ_MSM
-static struct cpufreq_frequency_table freq_table[NR_CPUS][30];
+static struct cpufreq_frequency_table freq_table[NR_CPUS][34];
 
 static void __init cpufreq_table_init(void)
 {

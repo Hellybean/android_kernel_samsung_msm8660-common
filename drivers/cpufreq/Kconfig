@@ -42,6 +42,12 @@ config CPU_FREQ_STAT_DETAILS
 
 	  If in doubt, say N.
 
+config LINK_CPU_GOVERNORS
+	bool "Link CPU Governors"
+	depends on CPU_FREQ
+	help
+	  "This will force both governors to stay synced"
+
 choice
 	prompt "Default CPUFreq governor"
 	default CPU_FREQ_DEFAULT_GOV_USERSPACE if CPU_FREQ_SA1100 || CPU_FREQ_SA1110
@@ -394,13 +400,19 @@ config CPU_FREQ_DEFAULT_GOV_INTELLIDEMAND
 	  Use the CPUFreq governor 'intellidemand' as default. This is
 	  based on Ondemand with browsing detection based on GPU loading
 
+config CPU_FREQ_DEFAULT_GOV_AGGRESSIVE
+	bool "aggressive"
+	select CPU_FREQ_GOV_AGGRESSIVE
+	help
+	A modified conservative governor.
+        This features earlysuspend, hotplugging,
+        and tweaks to make it more aggressive.
 
 config CPU_FREQ_DEFAULT_GOV_SAMSUNG
   	bool "samsung"
   	select CPU_FREQ_GOV_SAMSUNG
 
 endchoice
-
 
 config CPU_FREQ_GOV_PERFORMANCE
 	tristate "'performance' governor"
@@ -456,6 +468,18 @@ config CPU_FREQ_GOV_ONDEMAND
 	  For details, take a look at linux/Documentation/cpu-freq.
 
 	  If in doubt, say N.
+
+config CPU_FREQ_GOV_ONDEMAND_2_PHASE
+	tristate "'2-phase' power-efficiency ondemand algorithm"
+	depends on CPU_FREQ_GOV_ONDEMAND
+	help
+	  '2-phase' - This driver adds a new algo to save power
+
+config CPU_FREQ_GOV_ONDEMAND_2_PHASE_FREQ
+	int "'2-phase' ondemand frequency"
+	default 1242000
+	depends on CPU_FREQ_GOV_ONDEMAND
+	depends on CPU_FREQ_GOV_ONDEMAND_2_PHASE
 
 config CPU_FREQ_GOV_INTERACTIVE
 	tristate "'interactive' cpufreq policy governor"
@@ -783,7 +807,24 @@ config CPU_FREQ_GOV_GALLIMAUFRY
 	  'gallimaufry' - this governor is a modified ondemand.
 	   If in doubt, say N.
 
-config CPU_FREQ_GOV_SCARY
+config CPU_FREQ_GOV_AGGRESSIVE
+	tristate "'aggressive' governor"
+  depends on CPU_FREQ
+	help
+	  'aggressive' - this governor is a modified conservative.
+	   If in doubt, say N.
+	   
+config CPU_FREQ_DEFAULT_GOV_SCARY
+	bool "scary"
+	select CPU_FREQ_GOV_SCARY
+	help
+	  Use the CPUFreq governor 'scary' as default.
+
+config CPU_FREQ_DEFAULT_GOV_SCARY
+	bool "lulzactive"
+	select CPU_FREQ_GOV_SCARY
+
+config CPU_FREQ_DEFAULT_GOV_SCARY
 	bool "scary"
 	select CPU_FREQ_GOV_SCARY
 	help

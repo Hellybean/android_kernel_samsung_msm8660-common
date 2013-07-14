@@ -69,7 +69,7 @@ static unsigned long down_rate_us;
  * When ramping up frequency with no idle cycles jump to at least this frequency.
  * Zero disables. Set a very high value to jump to policy max freqeuncy.
  */
-#define DEFAULT_UP_MIN_FREQ 998400
+#define DEFAULT_UP_MIN_FREQ 972000
 static unsigned int up_min_freq;
 
 /*
@@ -78,7 +78,7 @@ static unsigned int up_min_freq;
  * to minimize wakeup issues.
  * Set sleep_max_freq=0 to disable this behavior.
  */
-#define DEFAULT_SLEEP_MAX_FREQ 245000
+#define DEFAULT_SLEEP_MAX_FREQ 486000
 static unsigned int sleep_max_freq;
 
 /*
@@ -91,7 +91,7 @@ static unsigned int sample_rate_jiffies;
  * Freqeuncy delta when ramping up.
  * zero disables causes to always jump straight to max frequency.
  */
-#define DEFAULT_RAMP_UP_STEP 614400
+#define DEFAULT_RAMP_UP_STEP 648000
 static unsigned int ramp_up_step;
 
 /*
@@ -120,7 +120,7 @@ static int cpufreq_governor_virtuous(struct cpufreq_policy *policy,
 static
 #endif
 struct cpufreq_governor cpufreq_gov_virtuous = {
-	.name = "virtuous",
+	.name = "Virtuous",
 	.governor = cpufreq_governor_virtuous,
 	.max_transition_latency = 9000000,
 	.owner = THIS_MODULE,
@@ -464,7 +464,7 @@ static struct attribute * virtuous_attributes[] = {
 
 static struct attribute_group virtuous_attr_group = {
 	.attrs = virtuous_attributes,
-	.name = "virtuous",
+	.name = "Virtuous",
 };
 
 static int cpufreq_governor_virtuous(struct cpufreq_policy *new_policy,

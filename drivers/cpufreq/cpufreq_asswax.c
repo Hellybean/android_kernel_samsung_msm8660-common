@@ -759,7 +759,7 @@ static int cpufreq_governor_asswax(struct cpufreq_policy *new_policy,
 		flush_work(&freq_scale_work);
 		this_asswax->idle_exit_time = 0;
 
-		if (atomic_dec_return(&active_count) <= 1) {
+		if (atomic_dec_return(&active_count) > 1) {
 			sysfs_remove_group(cpufreq_global_kobject,
 					   &asswax_attr_group);
 			pm_idle = pm_idle_old;

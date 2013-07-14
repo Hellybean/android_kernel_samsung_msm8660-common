@@ -58,18 +58,18 @@ config IOSCHED_VR
    	tristate "V(R) I/O scheduler"
   	default y
   	---help---
-    	  Requests are chosen according to SSTF with a penalty of 
-	  rev_penalty for switching head direction.
+    	Requests are chosen according to SSTF with a penalty of 
+	rev_penalty for switching head direction.
 
 config IOSCHED_SIO
-  	tristate "Simple I/O scheduler"
-  	default y
- 	---help---
-   	  The Simple I/O scheduler is an extremely simple scheduler,
-   	  based on noop and deadline, that relies on deadlines to
-   	  ensure fairness. The algorithm does not do any sorting but
-   	  basic merging, trying to keep a minimum overhead. It is aimed
-   	  mainly for aleatory access devices (eg: flash devices).
+  tristate "Simple I/O scheduler"
+  default y
+  ---help---
+    The Simple I/O scheduler is an extremely simple scheduler,
+    based on noop and deadline, that relies on deadlines to
+    ensure fairness. The algorithm does not do any sorting but
+    basic merging, trying to keep a minimum overhead. It is aimed
+    mainly for aleatory access devices (eg: flash devices).
 
 config IOSCHED_ZEN
 	tristate "Zen I/O scheduler"
@@ -78,6 +78,15 @@ config IOSCHED_ZEN
 	  FCFS, dispatches are back-inserted, deadlines ensure fairness.
 	  Should work best with devices where there is no travel delay.
 	  Enable group IO scheduling in CFQ.
+
+config IOSCHED_AS
+	tristate "Anticipatory I/O scheduler"
+	default y
+	---help---
+	  The anticipatory I/O scheduler is generally a good choice for most
+	  environments, but is quite large and complex when compared to the
+	  deadline I/O scheduler, it can also be slower in some cases
+	  especially some database loads.
 
 config IOSCHED_BFQ
 	tristate "BFQ I/O scheduler"
@@ -139,12 +148,16 @@ choice
 	config DEFAULT_ZEN
 		bool "ZEN" if IOSCHED_ZEN=y
 
+	config DEFAULT_AS
+		bool "Anticipatory" if IOSCHED_AS=y
+
 endchoice
 
 config DEFAULT_IOSCHED
 	string
 	default "deadline" if DEFAULT_DEADLINE
 	default "row" if DEFAULT_ROW
+	default "anticipatory" if DEFAULT_AS
 	default "cfq" if DEFAULT_CFQ
 	default "bfq" if DEFAULT_BFQ
 	default "noop" if DEFAULT_NOOP
