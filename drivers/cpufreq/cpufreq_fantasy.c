@@ -53,10 +53,10 @@
 #define DECRASE_FREQ_STEP_LIMIT2    (200000)   /* decrase frequency limited to 200Mhz when frequency is [600Mhz,  900Mhz) */
 #define DECRASE_FREQ_STEP_LIMIT3    (100000)   /* decrase frequency limited to 100Mhz when frequency is [200Mhz,  600Mhz) */
 #define DECRASE_FREQ_STEP_LIMIT4    (20000)    /* decrase frequency limited to  20Mhz when frequency is [60Mhz,   200Mhz) */
-#define IOWAIT_FREQ_STEP_LIMIT1     (300000)   /* frequency limited to  300Mhz when iowait is [10, 20)  */
-#define IOWAIT_FREQ_STEP_LIMIT2     (600000)   /* frequency limited to  600Mhz when iowait is [20, 30)  */
-#define IOWAIT_FREQ_STEP_LIMIT3     (816000)   /* frequency limited to  816Mhz when iowait is [30, 40)  */
-#define IOWAIT_FREQ_STEP_LIMIT4     (1008000)  /* frequency limited to 1008Mhz when iowait is [40, 100) */
+#define IOWAIT_FREQ_STEP_LIMIT1     (384000)   /* frequency limited to  384Mhz when iowait is [10, 20)  */
+#define IOWAIT_FREQ_STEP_LIMIT2     (594000)   /* frequency limited to  594Mhz when iowait is [20, 30)  */
+#define IOWAIT_FREQ_STEP_LIMIT3     (810000)   /* frequency limited to  810Mhz when iowait is [30, 40)  */
+#define IOWAIT_FREQ_STEP_LIMIT4     (1026000)  /* frequency limited to 1026Mhz when iowait is [40, 100) */
 
 
 enum cpufreq_fantasy_step {
