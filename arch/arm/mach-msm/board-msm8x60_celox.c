@@ -41,7 +41,8 @@
 #include <linux/i2c/isa1200.h>
 #include <linux/dma-mapping.h>
 #include <linux/i2c/bq27520.h>
-#include <linux/fastchg.h> 
+#include <linux/fastchg.h>
+#include <linux/msm_tsens.h>
 
 #ifdef CONFIG_TOUCHSCREEN_MELFAS
 #define TOUCHSCREEN_IRQ 		125  
@@ -180,6 +181,18 @@
 #if defined(CONFIG_TDMB) || defined(CONFIG_TDMB_MODULE)
 #include <mach/tdmb_pdata.h>
 #endif
+
+#ifdef CONFIG_CPU_FREQ_GOV_ONDEMAND_2_PHASE
+	int set_two_phase_freq(int cpufreq);
+#endif 
+
+#ifdef CONFIG_CPU_FREQ_GOV_BADASS_2_PHASE
+	int set_two_phase_freq_badass(int cpufreq);
+#endif
+#ifdef CONFIG_CPU_FREQ_GOV_BADASS_3_PHASE
+	int set_three_phase_freq_badass(int cpufreq);
+#endif
+
 #define MSM_SHARED_RAM_PHYS 0x40000000
 
 #ifdef CONFIG_OPTICAL_GP2A
@@ -708,8 +721,8 @@ static struct regulator_init_data saw_s0_init_data = {
 		.constraints = {
 			.name = "8901_s0",
 			.valid_ops_mask = REGULATOR_CHANGE_VOLTAGE,
-			.min_uV = 800000,
-			.max_uV = 1250000,
+			.min_uV = 700000,
+			.max_uV = 1350000,
 		},
 		.consumer_supplies = vreg_consumers_8901_S0,
 		.num_consumer_supplies = ARRAY_SIZE(vreg_consumers_8901_S0),
@@ -719,8 +732,8 @@ static struct regulator_init_data saw_s1_init_data = {
 		.constraints = {
 			.name = "8901_s1",
 			.valid_ops_mask = REGULATOR_CHANGE_VOLTAGE,
-			.min_uV = 800000,
-			.max_uV = 1250000,
+			.min_uV = 700000,
+			.max_uV = 1350000,
 		},
 		.consumer_supplies = vreg_consumers_8901_S1,
 		.num_consumer_supplies = ARRAY_SIZE(vreg_consumers_8901_S1),
@@ -4753,10 +4766,10 @@ static void fsa9480_usb_cb(bool attached)
 #ifdef CONFIG_FORCE_FAST_CHARGE
     	case CABLE_TYPE_USB:
 	if (force_fast_charge != 0) {
-	  value.intval = POWER_SUPPLY_TYPE_MAINS;
-	  printk(KERN_ERR "fast charce is enabled, value: %d\n", force_fast_charge);
+	value.intval = POWER_SUPPLY_TYPE_MAINS;
+	printk(KERN_ERR "fast charce is enabled, value: %d\n", force_fast_charge);
 	} else {
-	  value.intval = POWER_SUPPLY_TYPE_USB;
+	value.intval = POWER_SUPPLY_TYPE_USB;
 	}
 	break;
 #else 
@@ -8166,8 +8179,8 @@ static struct regulator_consumer_supply vreg_consumers_PM8901_S4_PC[] = {
 /* RPM early regulator constraints */
 static struct rpm_regulator_init_data rpm_regulator_early_init_data[] = {
 	/*	 ID       a_on pd ss min_uV   max_uV   init_ip    freq */
-	RPM_SMPS(PM8058_S0, 0, 1, 1,  500000, 1250000, SMPS_HMIN, 1p60),
-	RPM_SMPS(PM8058_S1, 0, 1, 1,  500000, 1250000, SMPS_HMIN, 1p60),
+	RPM_SMPS(PM8058_S0, 0, 1, 1,  500000, 1350000, SMPS_HMIN, 1p60),
+	RPM_SMPS(PM8058_S1, 0, 1, 1,  500000, 1350000, SMPS_HMIN, 1p60),
 };
 
 /* RPM regulator constraints */
@@ -8313,6 +8326,13 @@ static struct platform_device *early_devices[] __initdata = {
 	&msm_device_dmov_adm1,
 };
 
+static struct tsens_platform_data her_tsens_pdata = {
+	.tsens_factor = 1000,
+	.hw_type = MSM_8660,
+	.tsens_num_sensor = 6,
+	.slope = {702},
+};
+
 #if 0 //(defined(CONFIG_MARIMBA_CORE)) && (defined(CONFIG_MSM_BT_POWER) || defined(CONFIG_MSM_BT_POWER_MODULE))
 
 static int bluetooth_power(int);
@@ -8333,10 +8353,12 @@ static struct platform_device bcm4330_bluetooth_device = {
 };
 #endif
 
+/*
 static struct platform_device msm_tsens_device = {
 	.name   = "tsens-tm",
 	.id = -1,
 };
+*/
 
 #ifdef CONFIG_VP_A2220
 #ifdef CONFIG_USE_A2220_B
@@ -9793,7 +9815,7 @@ static struct platform_device *surf_devices[] __initdata = {
 	&msm_device_rng,
 #endif
 
-	&msm_tsens_device,
+	//&msm_tsens_device,
 	&msm_rpm_device,
 #ifdef CONFIG_ION_MSM
 	&ion_dev,
@@ -16779,6 +16801,8 @@ static void __init msm8x60_init(struct msm_board_data *board_data)
 	};
 #endif
 
+
+
 #ifdef CONFIG_BATTERY_SEC
 	is_lpm_boot = sec_get_lpm_mode();
 #endif
@@ -16793,6 +16817,9 @@ static void __init msm8x60_init(struct msm_board_data *board_data)
 	 * Initialize RPM first as other drivers and devices may need
 	 * it for their initialization.
 	 */
+
+	msm_tsens_early_init(&her_tsens_pdata);
+
 #ifdef CONFIG_MSM_RPM
 	BUG_ON(msm_rpm_init(&msm_rpm_data));
 #endif
@@ -16863,6 +16890,18 @@ static void __init msm8x60_init(struct msm_board_data *board_data)
 	/* CPU frequency control is not supported on simulated targets. */
 	if (!machine_is_msm8x60_rumi3() && !machine_is_msm8x60_sim())
 		acpuclk_init(&acpuclk_8x60_soc_data);
+
+#ifdef CONFIG_CPU_FREQ_GOV_ONDEMAND_2_PHASE
+        set_two_phase_freq(CONFIG_CPU_FREQ_GOV_ONDEMAND_2_PHASE_FREQ);
+#endif 
+
+#ifdef CONFIG_CPU_FREQ_GOV_BADASS_2_PHASE
+  	set_two_phase_freq_badass(CONFIG_CPU_FREQ_GOV_BADASS_2_PHASE_FREQ);
+#endif
+
+#ifdef CONFIG_CPU_FREQ_GOV_BADASS_3_PHASE
+	set_three_phase_freq_badass(CONFIG_CPU_FREQ_GOV_BADASS_3_PHASE_FREQ);
+#endif 
 
 	/*
 	 * Enable EBI2 only for boards which make use of it. Leave

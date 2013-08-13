@@ -789,11 +789,11 @@ static struct regulator_init_data saw_s0_init_data = {
 		.constraints = {
 			.name = "8901_s0",
 			.valid_ops_mask = REGULATOR_CHANGE_VOLTAGE,
-			.min_uV = 800000,
+			.min_uV = 700000,
 #if defined(CONFIG_JPN_MODEL_SC_05D)
 			.max_uV = 1325000,
 #else
-			.max_uV = 1250000,
+			.max_uV = 1350000,
 #endif
 		},
 		.consumer_supplies = vreg_consumers_8901_S0,
@@ -804,11 +804,11 @@ static struct regulator_init_data saw_s1_init_data = {
 		.constraints = {
 			.name = "8901_s1",
 			.valid_ops_mask = REGULATOR_CHANGE_VOLTAGE,
-			.min_uV = 800000,
+			.min_uV = 700000,
 #if defined(CONFIG_JPN_MODEL_SC_05D)
 			.max_uV = 1325000,
 #else
-			.max_uV = 1250000,
+			.max_uV = 1350000,
 #endif
 		},
 		.consumer_supplies = vreg_consumers_8901_S1,
@@ -3587,6 +3587,9 @@ static struct platform_device msm_gemini_device = {
 #endif
 
 #ifdef CONFIG_I2C_QUP
+static void gsbi_qup_i2c_gpio_config(int adap_id, int config_type)
+{
+}
 #if defined(CONFIG_JPN_MODEL_SC_05D)
 /*	QC patch for case 00580204 , I2C QTR failure
 * GSBI7 GPIO configuration for recovery of QTR I2C lines
@@ -8420,12 +8423,8 @@ static struct regulator_consumer_supply vreg_consumers_PM8901_S4_PC[] = {
 /* RPM early regulator constraints */
 static struct rpm_regulator_init_data rpm_regulator_early_init_data[] = {
 	/*	 ID       a_on pd ss min_uV   max_uV   init_ip    freq */
-#if defined(CONFIG_JPN_MODEL_SC_05D)
-	RPM_SMPS(PM8058_S0, 0, 1, 1,  500000, 1325000, SMPS_HMIN, 1p60),
-#else
-	RPM_SMPS(PM8058_S0, 0, 1, 1,  500000, 1250000, SMPS_HMIN, 1p60),
-#endif
-	RPM_SMPS(PM8058_S1, 0, 1, 1,  500000, 1250000, SMPS_HMIN, 1p60),
+	RPM_SMPS(PM8058_S0, 0, 1, 1,  500000, 1350000, SMPS_HMIN, 1p60),
+	RPM_SMPS(PM8058_S1, 0, 1, 1,  500000, 1350000, SMPS_HMIN, 1p60),
 };
 
 /* RPM regulator constraints */

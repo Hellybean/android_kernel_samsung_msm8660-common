@@ -235,6 +235,7 @@ static int freq_policy_handler(struct notifier_block *nb,
 out:
 	return NOTIFY_DONE;
 }
+
 #ifdef CONFIG_MSM_MPDEC
 unsigned int get_rq_info(void)
 {
