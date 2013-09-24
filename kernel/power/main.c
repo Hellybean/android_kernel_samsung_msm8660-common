@@ -400,7 +400,7 @@ int set_freq_limit(unsigned long id, unsigned int freq)
 	set_min_lock(min);
 	set_max_lock(max);
         #ifndef CONFIG_USA_MODEL_SGH_T989
-	printk("%s: 0x%lx %d, min %d, max %d\n", __FUNCTION__, id, freq, min, max);
+	//printk("%s: 0x%lx %d, min %d, max %d\n", __FUNCTION__, id, freq, min, max);
 	#endif
 
 	/* need to update now */
