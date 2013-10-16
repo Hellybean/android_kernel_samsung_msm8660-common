@@ -83,7 +83,7 @@ static int zram_major;
 struct zram *devices;
 
 /* Module params (documentation at end) */
-unsigned int zram_num_devices;
+unsigned int num_devices;
 
 static void zram_stat_inc(u32 *v)
 {
@@ -840,9 +840,9 @@ static int __init zram_init(void)
 {
 	int ret, dev_id;
 
-	if (zram_num_devices > max_num_devices) {
+	if (num_devices > max_num_devices) {
 		pr_warning("Invalid value for num_devices: %u\n",
-				zram_num_devices);
+				num_devices);
 		ret = -EINVAL;
 		goto out;
 	}
@@ -854,9 +854,9 @@ static int __init zram_init(void)
 		goto out;
 	}
 
-	if (!zram_num_devices) {
+	if (!num_devices) {
 		pr_info("num_devices not specified. Using default: 1\n");
-		zram_num_devices = 1;
+		num_devices = 1;
 	}
 
 	/* Allocate the device array and initialize each one */
@@ -904,8 +904,8 @@ static void __exit zram_exit(void)
 	pr_debug("Cleanup done!\n");
 }
 
-module_param(zram_num_devices, uint, 0);
-MODULE_PARM_DESC(zram_num_devices, "Number of zram devices");
+module_param(num_devices, uint, 0);
+MODULE_PARM_DESC(num_devices, "Number of zram devices");
 
 module_init(zram_init);
 module_exit(zram_exit);
