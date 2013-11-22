@@ -16,6 +16,7 @@
 
 #include <linux/debugfs.h>
 #include <linux/export.h>
+#include <linux/module.h>
 #include <linux/file.h>
 #include <linux/fs.h>
 #include <linux/kernel.h>
@@ -34,7 +35,7 @@
 static void sync_fence_signal_pt(struct sync_pt *pt);
 static int _sync_pt_has_signaled(struct sync_pt *pt);
 static void sync_fence_free(struct kref *kref);
-static void sync_dump(void);
+static void sync_dump(struct sync_fence *fence);
 
 static LIST_HEAD(sync_timeline_list_head);
 static DEFINE_SPINLOCK(sync_timeline_list_lock);
@@ -611,14 +612,16 @@ int sync_fence_wait(struct sync_fence *fence, long timeout)
 
 	if (fence->status < 0) {
 		pr_info("fence error %d on [%p]\n", fence->status, fence);
-		sync_dump();
+		sync_dump(fence);
 		return fence->status;
 	}
 
-	if (fence->status == 0 && timeout > 0) {
-		pr_info("fence timeout on [%p] after %dms\n", fence,
-			jiffies_to_msecs(timeout));
-		sync_dump();
+	if (fence->status == 0) {
+		if (timeout > 0) {
+			pr_info("fence timeout on [%p] after %dms\n", fence,
+				jiffies_to_msecs(timeout));
+			sync_dump(fence);
+		}
 		return -ETIME;
 	}
 
@@ -740,7 +743,7 @@ err_put_fd:
 	return err;
 }
 
-int sync_fill_pt_info(struct sync_pt *pt, void *data, int size)
+static int sync_fill_pt_info(struct sync_pt *pt, void *data, int size)
 {
 	struct sync_pt_info *info = data;
 	int ret;
@@ -767,7 +770,6 @@ int sync_fill_pt_info(struct sync_pt *pt, void *data, int size)
 
 	return info->len;
 }
-
 
 static long sync_fence_ioctl_fence_info(struct sync_fence *fence,
 					unsigned long arg)
@@ -985,7 +987,7 @@ late_initcall(sync_debugfs_init);
 
 #define DUMP_CHUNK 256
 static char sync_dump_buf[64 * 1024];
-void sync_dump(void)
+static void sync_dump(struct sync_fence *fence)
 {
        struct seq_file s = {
                .buf = sync_dump_buf,
@@ -993,7 +995,9 @@ void sync_dump(void)
        };
        int i;
 
-       sync_debugfs_show(&s, NULL);
+       seq_printf(&s, "fence:\n--------------\n");
+       sync_print_fence(&s, fence);
+       seq_printf(&s, "\n");
 
        for (i = 0; i < s.count; i += DUMP_CHUNK) {
                if ((s.count - i) > DUMP_CHUNK) {
@@ -1008,7 +1012,7 @@ void sync_dump(void)
        }
 }
 #else
-static void sync_dump(void)
+static void sync_dump(struct sync_fence *fence)
 {
 }
 #endif
