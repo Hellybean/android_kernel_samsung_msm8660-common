@@ -244,7 +244,6 @@ unsigned long flags = 0;
 EXPORT_SYMBOL(get_rq_info);
 #endif  
 
-#ifdef CONFIG_SEC_DVFS_DUAL
 static int is_dual_locked = 0;
 static int is_sysfs_used = 0;
 static int is_uevent_sent = 0;
