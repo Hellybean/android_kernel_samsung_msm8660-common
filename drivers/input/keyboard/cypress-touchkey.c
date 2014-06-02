@@ -209,6 +209,7 @@ struct i2c_touchkey_driver {
 	struct input_dev *input_dev;
 	struct early_suspend early_suspend;
 	struct mutex mutex;
+        atomic_t keypad_enable;
 };
 struct i2c_touchkey_driver *touchkey_driver = NULL;
 struct work_struct touchkey_work;
@@ -476,6 +477,10 @@ static irqreturn_t touchkey_interrupt(int irq, void *dummy)  // ks 79 - threaded
     u8 data[3];
     int ret;
     int retry = 10;
+
+    if (!atomic_read(&touchkey_driver->keypad_enable)) {
+            return IRQ_HANDLED;
+    }
 
     mutex_lock(&touchkey_driver->mutex);
 
@@ -1180,6 +1185,9 @@ static int i2c_touchkey_probe(struct i2c_client *client, const struct i2c_device
 	set_bit(EV_LED, input_dev->evbit);
 	set_bit(LED_MISC, input_dev->ledbit);
 	set_bit(EV_KEY, input_dev->evbit);
+
+        atomic_set(&touchkey_driver->keypad_enable, 1);
+
 	set_bit(touchkey_keycode[1], input_dev->keybit);
 	set_bit(touchkey_keycode[2], input_dev->keybit);
 #if defined (CONFIG_USA_MODEL_SGH_I727) || defined (CONFIG_USA_MODEL_SGH_T989) || defined (CONFIG_JPN_MODEL_SC_03D) \
@@ -2118,6 +2126,34 @@ static ssize_t brightness_level_show(struct device *dev, struct device_attribute
 	return count;
 }
 
+static ssize_t sec_keypad_enable_show(struct device *dev,
+		struct device_attribute *attr, char *buf)
+{
+	return sprintf(buf, "%d\n", atomic_read(&touchkey_driver->keypad_enable));
+}
+
+static ssize_t sec_keypad_enable_store(struct device *dev,
+		struct device_attribute *attr, const char *buf, size_t count)
+{
+        int i;
+	unsigned int val = 0;
+	sscanf(buf, "%d", &val);
+	val = (val == 0 ? 0 : 1);
+	atomic_set(&touchkey_driver->keypad_enable, val);
+	if (val) {
+                for (i = 0; i < ARRAY_SIZE(touchkey_keycode); i++)
+                        set_bit(touchkey_keycode[i], touchkey_driver->input_dev->keybit);
+	} else {
+                for (i = 0; i < ARRAY_SIZE(touchkey_keycode); i++)
+                        clear_bit(touchkey_keycode[i], touchkey_driver->input_dev->keybit);
+	}
+	input_sync(touchkey_driver->input_dev);
+
+	return count;
+}
+
+static DEVICE_ATTR(keypad_enable, S_IRUGO|S_IWUSR, sec_keypad_enable_show,
+	      sec_keypad_enable_store);
 static DEVICE_ATTR(touch_version, S_IRUGO | S_IWUSR | S_IWGRP, touch_version_read, touch_version_write);
 static DEVICE_ATTR(touch_recommend, S_IRUGO | S_IWUSR | S_IWGRP, touch_recommend_read, touch_recommend_write);
 static DEVICE_ATTR(touch_update, S_IRUGO | S_IWUSR | S_IWGRP, touch_update_read, touch_update_write);
@@ -2320,6 +2356,9 @@ static int __init touchkey_init(void)
 	}
 	if (device_create_file(sec_touchkey, &dev_attr_touchkey_brightness)< 0)	{
 		printk(KERN_ERR "Failed to create device file(%s)!\n", dev_attr_touchkey_brightness.attr.name);
+	}
+	if (device_create_file(sec_touchkey, &dev_attr_keypad_enable)< 0)	{
+		printk(KERN_ERR "Failed to create device file(%s)!\n", dev_attr_keypad_enable.attr.name);
 	}
 
 #ifdef CONFIG_S5PC110_T959_BOARD //NAGSM_Android_SEL_Kernel_Aakash_20100320
