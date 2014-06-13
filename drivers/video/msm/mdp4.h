@@ -554,6 +554,14 @@ static inline void mdp4_dtv_free_base_pipe(struct msm_fb_data_type *mfd)
 {
     /* empty */
 }
+static inline void mdp4_dtv_pipe_queue(int cndx, struct mdp4_overlay_pipe *pipe)
+{
+	/* empty */
+}
+static inline int mdp4_dtv_pipe_commit(int cndx, int wait)
+{
+	return 0;
+}
 #endif /* CONFIG_FB_MSM_DTV */
 
 void mdp4_dtv_set_black_screen(void);
@@ -823,7 +831,6 @@ void mdp4_mddi_kickoff_video(struct msm_fb_data_type *mfd,
 void mdp4_mddi_read_ptr_intr(void);
 
 void mdp4_dsi_cmd_dma_busy_check(void);
-
 
 
 #ifdef CONFIG_FB_MSM_MIPI_DSI
