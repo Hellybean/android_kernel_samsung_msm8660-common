@@ -1,0 +1,117 @@
+#!/bin/bash
+
+clean=
+buildargs=
+fixed=
+upload=
+outfile=WildKernel_signed.zip
+
+input="$1 $2 $3"
+if [[ -z "$input" ]] 
+	then
+	buildargs=-j4
+	clean=true
+fi
+
+if [[ "$1" == *"-j"* ]]; then
+	buildargs=$1
+elif [[ "$2" == *"-j"* ]]; then
+	buildargs=$2
+elif [[ "$3" == *"-j"* ]]; then
+	buildargs=$3
+elif [[ "$4" == *"-j"* ]]; then
+	buildargs=$4
+else
+	buildargs=-j4
+fi
+
+if [[ "$1" == *"-c"* ]]; then
+	clean=true
+elif [[ "$2" == *"-c"* ]]; then
+	clean=true
+elif [[ "$3" == *"-c"* ]]; then
+	clean=true
+elif [[ "$4" == *"-c"* ]]; then
+	clean=true
+else
+	clean=false
+fi
+
+if [[ "$1" == *"-p"* ]]; then
+	upload=true
+elif [[ "$2" == *"-p"* ]]; then
+	upload=true
+elif [[ "$3" == *"-p"* ]]; then
+	upload=true
+elif [[ "$4" == *"-p"* ]]; then
+	upload=true
+else
+	upload=false
+fi
+
+if [[ "$1" == *"-f"* ]]; then
+	fixed=true
+elif [[ "$2" == *"-f"* ]]; then
+	fixed=true
+elif [[ "$3" == *"-f"* ]]; then
+	fixed=true
+elif [[ "$4" == *"-f"* ]]; then
+	fixed=true
+else
+	fixed=false
+fi
+
+clear
+rm build_log.txt >>build_log.txt
+echo Build Jobs: $buildargs
+sleep 2
+echo Cleaning workspace ...
+rm -rf *.zip
+rm -rf flashable/zip/META-INF/com/google/android/updater-script
+if [[ "$fixed" == "false" ]]; then
+rm -rf flashable/zip/system/lib/modules
+mkdir flashable/zip/system/ 
+mkdir flashable/zip/system/lib/ 
+mkdir flashable/zip/system/lib/modules/
+fi
+rm -rf zImage arch/arm/boot/zImage
+if [[ "$fixed" == "false" ]]; then
+if [[ "$clean" == "true" ]]; then
+make clean $buildargs | tee build_log.txt
+fi
+echo >> build_log.txt
+echo Writing configs ...
+make hercules_defconfig | tee -a build_log.txt
+echo >> build_log.txt
+make $buildargs | tee -a build_log.txt
+if [ ! -f arch/arm/boot/zImage ];
+then
+	echo
+	echo An error occured in the build process, aborting...
+        exit 1
+fi
+fi
+clear
+echo Creating Flash-able Zip ...
+if [[ "$fixed" == "false" ]]; then
+cp -f arch/arm/boot/zImage flashable/zip/kernel/zImage
+flashable/tools/mkbootimg --kernel flashable/zip/kernel/zImage --ramdisk flashable/tools/ramdisks/4.4.gz --cmdline "androidboot.hardware=qcom usb_id_pin_rework=true no_console_suspend=true zcache" --base 0x40400000 --ramdisk_offset 0x01400000 --pagesize 2048 --output flashable/zip/boot.img
+find -iname "*.ko" -exec cp {} flashable/zip/system/lib/modules/ \; >/dev/null
+rm -rf flashable/zip/kernel/zImage
+fi
+
+if [[ "$fixed" == "false" ]]; then
+cp -f flashable/zip/META-INF/com/google/android/dynamic-updater-script flashable/zip/META-INF/com/google/android/updater-script
+else
+cp -f flashable/zip/META-INF/com/google/android/fixed-updater-script flashable/zip/META-INF/com/google/android/updater-script
+fi
+cd flashable/zip/
+zip -r9 ../../tmp-kernel.zip *
+cd ../..
+java -jar flashable/tools/signapk.jar flashable/tools/testkey.x509.pem flashable/tools/testkey.pk8 tmp-kernel.zip $outfile
+rm -rf tmp-kernel.zip
+if [[ "$upload" == "true" ]]; then
+adb push $outfile /sdcard/
+fi
+echo
+echo Done - Your File is $outfile
