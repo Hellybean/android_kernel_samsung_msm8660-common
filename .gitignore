@@ -15,7 +15,6 @@
 *.a
 *.s
 *.ko
-*.so
 *.so.dbg
 *.mod.c
 *.i
@@ -78,4 +77,13 @@ GTAGS
 
 *.orig
 *~
+*.txt
+flashable/zip/system/lib/modules
+updater-script
+zImage
+*.zip
+CERT.RSA
+CERT.SF
+MANIFEST.MF
+boot.img
 \#*#
