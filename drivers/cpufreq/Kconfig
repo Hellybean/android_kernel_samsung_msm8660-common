@@ -639,6 +639,12 @@ config CPU_FREQ_GOV_ONDEMAND_2_PHASE
 	help
 	  '2-phase' - This driver adds a new algo to save power
 
+config CPU_FREQ_GOV_ONDEMAND_2_PHASE_FREQ
+	int "'2-phase' ondemand frequency"
+	default 918000
+	depends on CPU_FREQ_GOV_ONDEMAND
+	depends on CPU_FREQ_GOV_ONDEMAND_2_PHASE
+
 config CPU_FREQ_GOV_SCARY
 	tristate "'scary' governor"
   depends on CPU_FREQ
