@@ -154,9 +154,9 @@ config CPU_FREQ_DEFAULT_GOV_WHEATLEY
 config CPU_FREQ_DEFAULT_GOV_INTELLIDEMAND
 	bool "intellidemand"
 	select CPU_FREQ_GOV_INTELLIDEMAND
-	select CPU_FREQ_GOV_PERFORMANCE
 	help
-	  Use the CPUFreq governor 'intellidemand' as default.
+	  Use the CPUFreq governor 'intellidemand' as default. This is
+	  based on Ondemand with browsing detection based on GPU loading 
 
 config CPU_FREQ_DEFAULT_GOV_LIONHEART
 	bool "lionheart"
@@ -616,10 +616,28 @@ config CPU_FREQ_GOV_SAKURACTIVE
 	  If in doubt, say N.
 
 config CPU_FREQ_GOV_INTELLIDEMAND
-	tristate "'intellidemand' cpufreq governor"
-	depends on CPU_FREQ
-	---help---
-	  'intellidemand' - an intelligent ondemand governor
+        tristate "'intellidemand' cpufreq policy governor"
+        select CPU_FREQ_TABLE
+        help
+          'intellidemand' - This driver adds a dynamic cpufreq policy governor.
+          The governor does a periodic polling and
+          changes frequency based on the CPU utilization.
+          The support for this governor depends on CPU capability to
+          do fast frequency switching (i.e, very low latency frequency
+          transitions). with browsing detection based on GPU loading
+
+          To compile this driver as a module, choose M here: the
+          module will be called cpufreq_ondemand.
+
+          For details, take a look at linux/Documentation/cpu-freq.
+
+          If in doubt, say N.
+
+config CPU_FREQ_GOV_ONDEMAND_2_PHASE
+	tristate "'2-phase' power-efficiency ondemand algorithm"
+	depends on CPU_FREQ_GOV_ONDEMAND || CPU_FREQ_GOV_INTELLIDEMAND
+	help
+	  '2-phase' - This driver adds a new algo to save power
 
 config CPU_FREQ_GOV_SCARY
 	tristate "'scary' governor"
