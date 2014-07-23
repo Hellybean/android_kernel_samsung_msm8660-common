@@ -44,6 +44,7 @@ obj-$(CONFIG_CPU_FREQ_GOV_BRAZILIANWAX)	+= cpufreq_brazilianwax.o
 obj-$(CONFIG_CPU_FREQ_GOV_ONDEMANDX)	+= cpufreq_ondemandx.o
 obj-$(CONFIG_CPU_FREQ_GOV_SAMSUNG)	+= cpufreq_samsung.o
 obj-$(CONFIG_CPU_FREQ_GOV_HYPER)  	+= cpufreq_HYPER.o 
+obj-$(CONFIG_CPU_FREQ_GOV_GAMING)  	+= cpufreq_gaming.o 
 
 # CPUfreq cross-arch helpers
 obj-$(CONFIG_CPU_FREQ_TABLE)		+= freq_table.o

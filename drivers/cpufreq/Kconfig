@@ -158,6 +158,20 @@ config CPU_FREQ_DEFAULT_GOV_INTELLIDEMAND
 	  Use the CPUFreq governor 'intellidemand' as default. This is
 	  based on Ondemand with browsing detection based on GPU loading 
 
+config INTELLI_MAX_ACTIVE_FREQ
+	int "Max Active Freq for Intellidemand"
+	depends on CPU_FREQ_GOV_INTELLIDEMAND
+	default	1512000
+	help
+		Set default max active frequency for intellidemand
+
+config INTELLI_MAX_INACTIVE_FREQ
+	int "Max Inactive Freq for Intellidemand"
+	depends on CPU_FREQ_GOV_INTELLIDEMAND
+	default	972000
+	help
+		Set default max inactive frequency for intellidemand
+
 config CPU_FREQ_DEFAULT_GOV_LIONHEART
 	bool "lionheart"
 	select CPU_FREQ_GOV_LIONHEART
@@ -516,6 +530,10 @@ config CPU_FREQ_GOV_WHEATLEY
 
 config CPU_FREQ_GOV_SAVAGEDZEN
 	tristate "'savagedzen' cpufreq policy governor"
+	depends on CPU_FREQ
+
+config CPU_FREQ_GOV_GAMING
+	tristate "'gaming' cpufreq policy governor"
 	depends on CPU_FREQ
 
 config CPU_FREQ_GOV_GALLIMAUFRY
