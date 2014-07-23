@@ -875,6 +875,11 @@ config SEC_DVFS
 	default n
 	depends on CPU_FREQ
 
+config LINK_CPU_GOVERNORS
+	bool "Sync Cpus"
+	default n
+	depends on CPU_FREQ
+
 config SEC_DVFS_UNI
 	bool "DVFS job for Uni Processer"
 	default n
