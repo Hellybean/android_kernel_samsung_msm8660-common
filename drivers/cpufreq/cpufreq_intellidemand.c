@@ -984,10 +984,13 @@ enum {
 	SET_MAX
 };
 
+
+#ifndef CONFIG_SEC_DVFS
 enum {	
 	BOOT_CPU = 0,	
 	NON_BOOT_CPU
 };
+#endif
 
 #define SAMPLE_DURATION_MSEC	(10*1000) // 10 secs >= 10000 msec
 #define ACTIVE_DURATION_MSEC	(3*60*1000) // 3 mins

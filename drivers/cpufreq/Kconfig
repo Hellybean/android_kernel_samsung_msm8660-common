@@ -932,6 +932,17 @@ config SEC_LIMIT_LCD_OFF_CPU_MAX_FREQ
 	default y
 	depends on CPU_FREQ_GOV_ONDEMAND
 
+config CPU_FREQ_SYNC_SCALING
+	bool "Apply governor scaling to the two CPU cores"
+	depends on CPU_FREQ && SMP
+	default y if CPU_FREQ && SMP
+	help
+	  Allow compatibility with CM CPU Performances settings which only
+	  set cpu governor and min/max frequencies on the first cpu core
+
+	  If Y, changing scaling of a core via sysfs will also update
+	  settings for the second one.
+
 config VDD_USERSPACE
   bool "VDD sysfs interface"
   default n
