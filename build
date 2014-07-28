@@ -95,9 +95,11 @@ clear
 echo Creating Flash-able Zip ...
 if [[ "$fixed" == "false" ]]; then
 cp -f arch/arm/boot/zImage flashable/zip/kernel/zImage
-flashable/tools/mkbootimg --kernel flashable/zip/kernel/zImage --ramdisk flashable/tools/ramdisks/4.4.gz --cmdline "androidboot.hardware=qcom usb_id_pin_rework=true no_console_suspend=true zcache" --base 0x40400000 --ramdisk_offset 0x01400000 --pagesize 2048 --output flashable/zip/boot.img
+flashable/tools/mkbootfs flashable/tools/ramdisks/4.4/ | gzip > flashable/tools/ramdisks/ramdisk.gz
+flashable/tools/mkbootimg --kernel flashable/zip/kernel/zImage --ramdisk flashable/tools/ramdisks/ramdisk.gz --cmdline "androidboot.hardware=qcom usb_id_pin_rework=true no_console_suspend=true zcache" --base 0x40400000 --ramdisk_offset 0x01400000 --pagesize 2048 --output flashable/zip/boot.img
 find -iname "*.ko" -exec cp {} flashable/zip/system/lib/modules/ \; >/dev/null
 rm -rf flashable/zip/kernel/zImage
+rm -rf flashable/tools/ramdisks/ramdisk.gz
 fi
 
 if [[ "$fixed" == "false" ]]; then
