@@ -6,7 +6,7 @@ fixed=
 upload=
 outfile=WildKernel_signed.zip
 outdate=$(date +%m%d%y)
-kernelversion=007
+kernelversion=008
 
 input="$1 $2 $3"
 if [[ -z "$input" ]] 
