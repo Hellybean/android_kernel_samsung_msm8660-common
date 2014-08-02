@@ -5,7 +5,7 @@ buildargs=
 fixed=
 upload=
 outfile=WildKernel_signed.zip
-outdate=$(date +%m%d%y)
+outdate=$(date +%y%m%d)
 kernelversion=008
 
 input="$1 $2 $3"
