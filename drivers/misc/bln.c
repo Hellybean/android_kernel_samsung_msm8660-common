@@ -3,6 +3,7 @@
  * Copyright 2011  Michael Richter (alias neldar)
  * Copyright 2011  Adam Kent <adam@semicircular.net>
  * Copyright 2012  Jeffrey Clark <h0tw1r3@gmail.com>
+ * Copyright 2014  Emmanuel Utomi <emmanuelutomi@gmail.com>
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License version 2 as
@@ -27,6 +28,8 @@ static bool bln_suspended = false;		/* is system suspended */
 static uint32_t blink_count;
 static uint32_t blink_on_msec = 500;
 static uint32_t blink_off_msec = 500;
+static uint32_t override_blink_on_msec = NULL;
+static uint32_t override_blink_off_msec = NULL;
 static uint32_t max_blink_count = 300;
 
 static struct bln_implementation *bln_imp = NULL;
@@ -207,10 +210,39 @@ static ssize_t blink_interval_status_write(struct device *dev,
 
 	c = sscanf(buf, "%u %u\n", &ms_on, &ms_off);
 	if (c == 1 || c == 2) {
-		blink_on_msec = ms_on;
-		blink_off_msec = (c == 2) ? ms_off : ms_on;
+		if(override_blink_on_msec != NULL && override_blink_off_msec != NULL){
+			blink_on_msec = override_blink_on_msec;
+			blink_off_msec = (c == 2) ? override_blink_off_msec : blink_on_msec;
+		} else {
+			blink_on_msec = ms_on;
+			blink_off_msec = (c == 2) ? ms_off : ms_on;
+		}
 	} else {
 		pr_err("%s: invalid input\n", __FUNCTION__);
+	}
+
+	return size;
+}
+
+static ssize_t override_blink_interval_status_read(struct device *dev,
+		struct device_attribute *attr, char *buf)
+{
+	return sprintf(buf,"%u %u\n", override_blink_on_msec, override_blink_off_msec);
+}
+
+static ssize_t override_blink_interval_status_write(struct device *dev,
+		struct device_attribute *attr, const char *buf, size_t size)
+{
+	unsigned int ms_on, ms_off;
+	int c;
+
+	c = sscanf(buf, "%u %u\n", &ms_on, &ms_off);
+	if (c == 1 || c == 2) {
+		override_blink_on_msec = ms_on;
+		override_blink_off_msec = ms_off;
+	} else {
+		override_blink_on_msec = NULL;
+		override_blink_off_msec = NULL;
 	}
 
 	return size;
@@ -287,6 +319,9 @@ static DEVICE_ATTR(blink_interval, S_IRUGO | S_IWUGO,
 static DEVICE_ATTR(max_blink_count, S_IRUGO | S_IWUGO,
 		max_blink_count_status_read,
 		max_blink_count_status_write);
+static DEVICE_ATTR(override_blink_interval, S_IRUGO | S_IWUGO,
+		override_blink_interval_status_read,
+		override_blink_interval_status_write);
 static DEVICE_ATTR(blink_count, S_IRUGO , blink_count_read, NULL);
 static DEVICE_ATTR(version, S_IRUGO , version_read, NULL);
 
@@ -295,6 +330,7 @@ static struct attribute *bln_notification_attributes[] = {
 	&dev_attr_enabled.attr,
 	&dev_attr_notification_led.attr,
 	&dev_attr_blink_interval.attr,
+	&dev_attr_override_blink_interval.attr,
 	&dev_attr_max_blink_count.attr,
 	&dev_attr_blink_count.attr,
 	&dev_attr_version.attr,
