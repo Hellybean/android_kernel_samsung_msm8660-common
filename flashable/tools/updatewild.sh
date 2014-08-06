@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/bin/sh
 
 latestversion=008
 # date "+%y%m%d"
@@ -13,4 +13,20 @@ if [[ -z "$input" ]]
 	exit 1
 fi
 
-echo ${!input}
+if [[ "$input" == "latestversion" ]]
+	then
+	echo $latestversion
+
+elif [[ "$input" == "latestdate" ]]
+	then
+	echo $latestdate
+
+elif [[ "$input" == "latestDL" ]]
+	then
+	echo $latestDL
+elif [[ "$input" == "latestdateliteral" ]]
+	then
+	echo $latestdateliteral
+fi
+
+# echo ${!input} Apparently not all roms have bash installed ._.
