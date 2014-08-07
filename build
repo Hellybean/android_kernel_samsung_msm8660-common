@@ -5,13 +5,14 @@ buildargs=
 fixed=
 upload=
 
-outfile=WildKernel_signed.zip
+kernelversion=008
 device="hercules"
-outdate=$(date +%y%m%d)
+outfile=WildKernel_signed.zip
 OTAUpdater="https://raw.githubusercontent.com/EmmanuelU/wild_kernel_samsung_msm8660/android-msm-hercules-3.0/flashable/tools/updatewild.sh"
 OTALink="http://forum.xda-developers.com/showthread.php?t=2765196"
+
+outdate=$(date +%y%m%d)
 outdateliteral=$(date "+%A, %B %d %y")
-kernelversion=008
 
 input="$1 $2 $3"
 if [[ -z "$input" ]] 
