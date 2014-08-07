@@ -1,12 +1,8 @@
 #!/bin/sh
-
 latestversion=008
-# date "+%y%m%d"
-latestdate=140802
-latestDL="http://forum.xda-developers.com/showthread.php?t=2765196"
-#date "+%A, %B %d %y"
-latestdateliteral="Saturday, August 02 2014"
-
+latestdate=140807
+latestdateliteral=Thursday, August 07 14
+latestDL=http://forum.xda-developers.com/showthread.php?t=2765196
 input="$1"
 if [[ -z "$input" ]]
 	then

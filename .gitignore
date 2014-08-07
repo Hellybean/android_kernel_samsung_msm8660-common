@@ -86,4 +86,5 @@ CERT.RSA
 CERT.SF
 MANIFEST.MF
 boot.img
+wild.sh
 \#*#
