@@ -13,6 +13,7 @@ OTALink="http://forum.xda-developers.com/showthread.php?t=2765196"
 
 outdate=$(date +%y%m%d)
 outdateliteral=$(date "+%A, %B %d %y")
+outdateliteral="'${outdateliteral}'"
 
 input="$1 $2 $3"
 if [[ -z "$input" ]] 
