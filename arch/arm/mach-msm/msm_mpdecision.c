@@ -48,7 +48,7 @@
 #define MSM_MPDEC_STARTDELAY            70000
 #define MSM_MPDEC_DELAY                 130
 #define MSM_MPDEC_PAUSE                 10000
-#define MSM_MPDEC_IDLE_FREQ             96000
+#define MSM_MPDEC_IDLE_FREQ             384000
 #ifdef CONFIG_MSM_MPDEC_INPUTBOOST_CPUMIN
 #define MSM_MPDEC_BOOSTTIME             1000
 #define MSM_MPDEC_BOOSTFREQ_CPU0        918000
