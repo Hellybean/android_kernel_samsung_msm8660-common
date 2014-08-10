@@ -43,12 +43,6 @@ struct cpufreq_work_struct {
 
 static DEFINE_PER_CPU(struct cpufreq_work_struct, cpufreq_work);
 static struct workqueue_struct *msm_cpufreq_wq;
-#endif
-
-#ifdef CONFIG_MSM_CPU_FREQ_SET_MIN_MAX
-/* Because we are hotplugging CPU1 using mpdecision, init should
-   not change min/max after initial fixup to accomodate user changes */
-int cpuinitcount = 0;
 #endif 
 
 struct cpufreq_suspend_t {
@@ -352,6 +346,7 @@ EXPORT_SYMBOL(msm_cpufreq_set_freq_limits);
 
 static int __cpuinit msm_cpufreq_init(struct cpufreq_policy *policy)
 {
+	struct cpufreq_policy global_policy;
 	int cur_freq;
 	int index;
 	struct cpufreq_frequency_table *table;
@@ -367,17 +362,17 @@ static int __cpuinit msm_cpufreq_init(struct cpufreq_policy *policy)
 		return -ENODEV;
 	if (cpufreq_frequency_table_cpuinfo(policy, table)) {
 	#ifdef CONFIG_MSM_CPU_FREQ_SET_MIN_MAX
-	//	if (cpuinitcount < CONFIG_NR_CPUS) {
+		if (policy->cpu < CONFIG_NR_CPUS) {
 			policy->cpuinfo.min_freq = CONFIG_MSM_CPU_FREQ_MIN;
 			policy->cpuinfo.max_freq = CONFIG_MSM_CPU_FREQ_MAX;
-	//	}
+		}
 	#endif
 	}
 #ifdef CONFIG_MSM_CPU_FREQ_SET_MIN_MAX
-	//if (cpuinitcount < CONFIG_NR_CPUS) {
+	if (policy->cpu < CONFIG_NR_CPUS) {
 		policy->min = CONFIG_MSM_CPU_FREQ_MIN;
 		policy->max = CONFIG_MSM_CPU_FREQ_MAX;
-	//}
+	}
 #endif
 
 	cur_freq = acpuclk_get_rate(policy->cpu);
@@ -411,14 +406,16 @@ static int __cpuinit msm_cpufreq_init(struct cpufreq_policy *policy)
 	init_completion(&cpu_work->complete);
 #endif
 
-#ifdef CONFIG_MSM_CPU_FREQ_SET_MIN_MAX
-  	cpuinitcount++;
-#endif 
-
-#ifdef CONFIG_MSM_CPU_FREQ_SET_MIN_MAX
-	policy->min = CONFIG_MSM_CPU_FREQ_MIN;
-	policy->max = CONFIG_MSM_CPU_FREQ_MAX;
-#endif
+	/* In the scenario that a non-primary core is resuming from a hotplug, retain 
+	  cpu0's min max to avoid being reset back to default min/max. There might be some
+	  underlying issue on why this is not already done natively... but hey I'm just here
+	  for a hotfix.
+	  - Emman */
+	if (policy->cpu >= 1) {
+		cpufreq_get_policy(&global_policy, 0);
+		policy->min = global_policy.min;
+		policy->max = global_policy.max;
+	}
 
 	return 0;
 }
