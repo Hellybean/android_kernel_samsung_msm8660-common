@@ -528,3 +528,6 @@ static int __init msm_thermal_init(void)
 	return ret;
 }
 fs_initcall(msm_thermal_init);
+
+
+
