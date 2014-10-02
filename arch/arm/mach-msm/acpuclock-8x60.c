@@ -49,7 +49,7 @@
 #ifdef CONFIG_USA_MODEL_SGH_I577
 #define L_VAL_SCPLL_CAL_MAX	0x17 /* = 1242 MHz with 27MHz source */
 #else
-#define L_VAL_SCPLL_CAL_MAX	0x22 /* = 1890 MHz with 27MHz source */
+#define L_VAL_SCPLL_CAL_MAX	0x24 /* = 1944 MHz with 27MHz source */
 #endif
 
 
@@ -260,13 +260,15 @@ static struct clkctl_acpu_speed acpu_freq_tbl_wild[] = {
   { {1, 1}, 1350000,  ACPU_SCPLL, 0, 0, 1, 0x19, L2(18), 1100000, 0x03006000},
   { {1, 1}, 1404000,  ACPU_SCPLL, 0, 0, 1, 0x1A, L2(19), 1125000, 0x03006000},
   { {1, 1}, 1458000,  ACPU_SCPLL, 0, 0, 1, 0x1B, L2(19), 1125000, 0x03006000},
-  { {1, 1}, 1512000,  ACPU_SCPLL, 0, 0, 1, 0x1C, L2(19), 1225000, 0x03006000},
-  { {1, 1}, 1620000,  ACPU_SCPLL, 0, 0, 1, 0x1D, L2(20), 1225000, 0x03006000},
-  { {1, 1}, 1674000,  ACPU_SCPLL, 0, 0, 1, 0x1E, L2(20), 1250000, 0x03006000},
-  { {1, 1}, 1728000,  ACPU_SCPLL, 0, 0, 1, 0x1F, L2(20), 1275000, 0x03006000},
-  { {1, 1}, 1782000,  ACPU_SCPLL, 0, 0, 1, 0x20, L2(20), 1275000, 0x03006000},
-  { {1, 1}, 1836000,  ACPU_SCPLL, 0, 0, 1, 0x21, L2(20), 1300000, 0x03006000},
-  { {1, 1}, 1890000,  ACPU_SCPLL, 0, 0, 1, 0x22, L2(20), 1300000, 0x03006000},
+  { {1, 1}, 1512000,  ACPU_SCPLL, 0, 0, 1, 0x1C, L2(19), 1150000, 0x03006000},
+  { {1, 1}, 1566000,  ACPU_SCPLL, 0, 0, 1, 0x1D, L2(19), 1150000, 0x03006000},
+  { {1, 1}, 1620000,  ACPU_SCPLL, 0, 0, 1, 0x1E, L2(20), 1175000, 0x03006000},
+  { {1, 1}, 1674000,  ACPU_SCPLL, 0, 0, 1, 0x1F, L2(20), 1175000, 0x03006000},
+  { {1, 1}, 1728000,  ACPU_SCPLL, 0, 0, 1, 0x20, L2(20), 1200000, 0x03006000},
+  { {1, 1}, 1782000,  ACPU_SCPLL, 0, 0, 1, 0x21, L2(20), 1200000, 0x03006000},
+  { {1, 1}, 1836000,  ACPU_SCPLL, 0, 0, 1, 0x22, L2(20), 1250000, 0x03006000},
+  { {1, 1}, 1890000,  ACPU_SCPLL, 0, 0, 1, 0x23, L2(20), 1250000, 0x03006000},
+  { {1, 1}, 1944000,  ACPU_SCPLL, 0, 0, 1, 0x24, L2(20), 1275000, 0x03006000},
   { {0, 0}, 0 },
 };
 
@@ -854,7 +856,7 @@ static void __init bus_init(void)
 }
 
 #ifdef CONFIG_CPU_FREQ_MSM
-static struct cpufreq_frequency_table freq_table[NR_CPUS][34];
+static struct cpufreq_frequency_table freq_table[NR_CPUS][38];
 
 static void __init cpufreq_table_init(void)
 {
@@ -934,7 +936,7 @@ static unsigned int __init select_freq_plan(void)
 		speed_bin = (pte_efuse >> 4) & 0xF;
 
 	if (speed_bin == 0x1) {
-		max_khz = 1890000;
+		max_khz = 1944000;
 		pvs = (pte_efuse >> 10) & 0x7;
 		if (pvs == 0x7)
 			pvs = (pte_efuse >> 13) & 0x7;
@@ -956,11 +958,11 @@ static unsigned int __init select_freq_plan(void)
 			break;
 		default:
 			acpu_freq_tbl = acpu_freq_tbl_wild;
-			pr_warn("ACPU PVS: Unknown. Defaulting to slow.\n");
+			pr_warn("ACPU PVS: Unknown. Defaulting to WildSetup.\n");
 			break;
 		}
 	} else if (speed_bin == 0x0 ) {
-		max_khz = 1890000;
+		max_khz = 1944000;
 		pvs = (pte_efuse >> 10) & 0x7;
                 if (pvs == 0x7)
                         pvs = (pte_efuse >> 13) & 0x7;
@@ -972,7 +974,7 @@ static unsigned int __init select_freq_plan(void)
                         break;
 		default:
 			acpu_freq_tbl = acpu_freq_tbl_wild;
-                        pr_warn("ACPU PVS: Unknown. Defaulting to slow.\n");
+                        pr_warn("ACPU PVS: Unknown. Defaulting to WildSetup.\n");
                         break;
 		}
 	} else {
