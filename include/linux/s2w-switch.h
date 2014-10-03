@@ -15,6 +15,7 @@
  */
 
 extern int s2w_switch;
+extern int s2s_switch;
 extern int s2w_sensitive;
 
 /* The global /sys/android_touch/ kobject for people to chain off of */
