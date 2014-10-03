@@ -29,12 +29,26 @@ static ssize_t s2w_switch_store(struct kobject *kobj, struct kobj_attribute *att
 sscanf(buf, "%du", &s2w_switch);
 return count;
 }
+static ssize_t s2w_sensitive_show(struct kobject *kobj, struct kobj_attribute *attr, char *buf)
+{
+return sprintf(buf, "%d\n", s2w_sensitive);
+}
+
+static ssize_t s2w_sensitive_store(struct kobject *kobj, struct kobj_attribute *attr, const char *buf, size_t count)
+{
+sscanf(buf, "%du", &s2w_sensitive);
+return count;
+}
 
 static struct kobj_attribute s2w_switch_attribute =
 __ATTR(sweep2wake, 0666, s2w_switch_show, s2w_switch_store);
 
+static struct kobj_attribute s2w_sensitive_attribute =
+__ATTR(sweep2wake_sensitive, 0666, s2w_sensitive_show, s2w_sensitive_store);
+
 static struct attribute *attrs[] = {
 &s2w_switch_attribute.attr,
+&s2w_sensitive_attribute.attr,
 NULL,
 };
 

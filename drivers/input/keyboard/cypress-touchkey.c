@@ -4,6 +4,7 @@
  * Copyright 2005 Phil Blundell
  * Copyright 2011 Michael Richter (alias neldar)
  * Copyright 2012 Jeffrey Clark <h0tw1r3@gmail.com>
+ * Copyright 2014 Emmanuel Utomi <emmanuelutomi@gmail.com>
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License version 2 as
@@ -156,6 +157,7 @@ static u8 firm_version = 0;
 
 #ifdef CONFIG_TOUCH_CYPRESS_SWEEP2WAKE
 int s2w_switch = 1;
+int s2w_sensitive = 0;
 int s2w_count = 0;
 bool scr_suspended = false, exec_count = true;
 bool scr_on_touch = false, barrier[2] = {false, false};
@@ -600,25 +602,27 @@ static irqreturn_t touchkey_interrupt(int irq, void *dummy)  // ks 79 - threaded
 			case 1:
 				s2w_count = 1;
 				break;
-			case 2:
-				pr_debug(KERN_ERR "[TKEY] count: %d and key: %d\n",s2w_count,key);
-				if (s2w_count == 1) {
-					s2w_count++;
-				} else {
-					s2w_count = 0;
-				}
-				break;
-			case 3:
-				pr_debug(KERN_ERR "[TKEY] count: %d and key: %d\n",s2w_count,key);
-				if (s2w_count == 2) {
-					s2w_count++;
-				} else {
-					s2w_count = 0;
-				}
-				break;
+			if(!s2w_sensitive){
+				case 2:
+					pr_debug(KERN_ERR "[TKEY] count: %d and key: %d\n",s2w_count,key);
+					if (s2w_count == 1) {
+						s2w_count++;
+					} else {
+						s2w_count = 0;
+					}
+					break;
+				case 3:
+					pr_debug(KERN_ERR "[TKEY] count: %d and key: %d\n",s2w_count,key);
+					if (s2w_count == 2) {
+						s2w_count++;
+					} else {
+						s2w_count = 0;
+					}
+					break;
+			}
 			case 4:
 				pr_debug(KERN_ERR "[TKEY] count: %d and key: %d\n",s2w_count,key);
-				if (s2w_count == 3) {
+				if (s2w_count == 3 || (s2w_sensitive && s2w_count >= 1)) {
 					sweep2wake_pwrtrigger();
 					s2w_count = 0;
 				} else {
