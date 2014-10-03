@@ -22,6 +22,7 @@ static struct delayed_work boost_work;
 
 static DECLARE_COMPLETION(cpu_boost_no_timeout);
 
+static unsigned int enabled = 1;
 static unsigned int boost_duration_ms = 0;
 static unsigned int boost_freq_khz = 0;
 static unsigned int boost_override = 0;
@@ -32,7 +33,7 @@ static unsigned int minfreq_orig = 0;
 
 void cpu_boost_timeout(unsigned int freq_mhz, unsigned int duration_ms)
 {
-	if (init_done) {
+	if (init_done && enabled) {
 		if (cpu_boosted) {
 			cpu_boosted = 0;
 			boost_override = 1;
@@ -47,7 +48,7 @@ void cpu_boost_timeout(unsigned int freq_mhz, unsigned int duration_ms)
 
 void cpu_boost(unsigned int freq_mhz)
 {
-	if (init_done) {
+	if (init_done && enabled) {
 		if (cpu_boosted) {
 			cpu_boosted = 0;
 			boost_override = 1;
@@ -62,7 +63,7 @@ void cpu_boost(unsigned int freq_mhz)
 
 void cpu_unboost(void)
 {
-	if (init_done)
+	if (init_done && enabled)
 		complete(&cpu_boost_no_timeout);
 }
 
@@ -146,10 +147,47 @@ static void __cpuinit cpu_boost_main(struct work_struct *work)
 				msecs_to_jiffies(wait_ms));
 }
 
+static ssize_t cpu_boost_enabled_status_read(struct device *dev,
+		struct device_attribute *attr, char *buf)
+{
+	return sprintf(buf, "%u\n", enabled);
+}
+
+static ssize_t cpu_boost_enabled_status_write(struct device *dev,
+		struct device_attribute *attr, const char *buf, size_t size)
+{
+	unsigned int data;
+	if(sscanf(buf, "%u\n", &data) == 1) {
+		if (data == 1) enabled = 1;
+		else if (data == 0) enabled = 0;
+	}
+	return size;
+}
+
+static struct kobj_attribute cpu_boost_enabled = __ATTR(enabled, 0666, cpu_boost_enabled_status_read, cpu_boost_enabled_status_write);
+
+
+static struct attribute *cpu_boost_attributes[] = {
+	&cpu_boost_enabled.attr,
+	NULL
+};
+
+static struct attribute_group cpu_boost_attr_group = {
+    .attrs = cpu_boost_attributes,
+};
+
+struct kobject *cpu_boost_kobject;
+
+
 static int __init cpu_boost_init(void)
 {
+	int retval;
+
 	INIT_DELAYED_WORK(&boost_work, cpu_boost_main);
 
+	cpu_boost_kobject = kobject_create_and_add("cpu_boost", kernel_kobj);
+	if (cpu_boost_kobject) retval = sysfs_create_group(cpu_boost_kobject, &cpu_boost_attr_group);
+	if (retval) kobject_put(cpu_boost_kobject);
 	init_done = 1;
 
 	return 0;
