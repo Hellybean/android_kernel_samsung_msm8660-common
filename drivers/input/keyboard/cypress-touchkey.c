@@ -157,7 +157,7 @@ static u8 firm_version = 0;
 
 #ifdef CONFIG_TOUCH_CYPRESS_SWEEP2WAKE
 int s2w_switch = 1;
-int s2s_switch = 0;
+int s2s_switch = 1;
 int s2w_sensitive = 0;
 int s2w_start = 0;
 int s2w_count = 0;
