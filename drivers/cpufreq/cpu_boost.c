@@ -147,6 +147,14 @@ static void __cpuinit cpu_boost_main(struct work_struct *work)
 				msecs_to_jiffies(wait_ms));
 }
 
+void cpu_boost_shutdown(void){
+	enabled = 0;
+}
+
+void cpu_boost_startup(void){
+	enabled = 1;
+}
+
 static ssize_t cpu_boost_enabled_status_read(struct device *dev,
 		struct device_attribute *attr, char *buf)
 {
@@ -158,8 +166,8 @@ static ssize_t cpu_boost_enabled_status_write(struct device *dev,
 {
 	unsigned int data;
 	if(sscanf(buf, "%u\n", &data) == 1) {
-		if (data == 1) enabled = 1;
-		else if (data == 0) enabled = 0;
+		if (data == 1) cpu_boost_startup();
+		else if (data == 0) cpu_boost_shutdown();
 	}
 	return size;
 }

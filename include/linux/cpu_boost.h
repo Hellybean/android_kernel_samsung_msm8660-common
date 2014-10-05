@@ -37,7 +37,12 @@ void cpu_boost(unsigned int freq_mhz);
  */
 void cpu_unboost(void);
 
+void cpu_boost_shutdown(void);
+void cpu_boost_startup(void);
+
 #else
+static inline void cpu_boost_shutdown(void);
+static inline void cpu_boost_startup(void);
 static inline void cpu_boost_timeout(unsigned int freq_mhz, unsigned int duration_ms) { }
 static inline void cpu_boost(unsigned int freq_mhz) { }
 static inline void cpu_unboost(void) { }
