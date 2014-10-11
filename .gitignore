@@ -79,6 +79,9 @@ GTAGS
 *~
 *.txt
 flashable/zip/system/lib/modules
+SCRIPTS
+Cl3Kener
+OUT
 updater-script
 zImage
 *.zip
