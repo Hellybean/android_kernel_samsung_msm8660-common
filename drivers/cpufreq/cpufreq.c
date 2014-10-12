@@ -471,6 +471,7 @@ static ssize_t store_scaling_min_freq
 			}
 		}
 	}
+	else retain_cpu_freq_policy(policy);
 
 	return ret ? ret : count;
 }
@@ -535,6 +536,7 @@ static ssize_t store_scaling_max_freq
 			}
 		}
 	}
+	else retain_cpu_freq_policy(policy);
 
 	return ret ? ret : count;
 }				
