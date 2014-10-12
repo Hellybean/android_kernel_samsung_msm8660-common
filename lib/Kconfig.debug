@@ -23,7 +23,7 @@ config DEFAULT_MESSAGE_LOGLEVEL
 
 config ENABLE_WARN_DEPRECATED
 	bool "Enable __deprecated logic"
-	default y
+	default n
 	help
 	  Enable the __deprecated logic in the kernel build.
 	  Disable this to suppress the "warning: 'foo' is deprecated
@@ -31,7 +31,7 @@ config ENABLE_WARN_DEPRECATED
 
 config ENABLE_MUST_CHECK
 	bool "Enable __must_check logic"
-	default y
+	default n
 	help
 	  Enable the __must_check logic in the kernel build.  Disable this to
 	  suppress the "warning: ignoring return value of 'foo', declared with
@@ -293,7 +293,7 @@ config BOOTPARAM_HUNG_TASK_PANIC_VALUE
 config SCHED_DEBUG
 	bool "Collect scheduler debugging info"
 	depends on DEBUG_KERNEL && PROC_FS
-	default y
+	default n
 	help
 	  If you say Y here, the /proc/sched_debug file will be provided
 	  that can help debug the scheduler. The runtime overhead of this
@@ -479,7 +479,7 @@ config DEBUG_KMEMLEAK_DEFAULT_OFF
 config DEBUG_PREEMPT
 	bool "Debug preemptible kernel"
 	depends on DEBUG_KERNEL && PREEMPT && TRACE_IRQFLAGS_SUPPORT
-	default y
+	default n
 	help
 	  If you say Y here then the kernel will use a debug variant of the
 	  commonly used smp_processor_id() function and will print warnings
@@ -495,7 +495,7 @@ config DEBUG_RT_MUTEXES
 
 config DEBUG_PI_LIST
 	bool
-	default y
+	default n
 	depends on DEBUG_RT_MUTEXES
 
 config RT_MUTEX_TESTER
@@ -506,6 +506,7 @@ config RT_MUTEX_TESTER
 
 config DEBUG_SPINLOCK
 	bool "Spinlock and rw-lock debugging: basic checks"
+	default n
 	depends on DEBUG_KERNEL
 	help
 	  Say Y here and build SMP to catch missing spinlock initialization
@@ -515,6 +516,7 @@ config DEBUG_SPINLOCK
 
 config DEBUG_MUTEXES
 	bool "Mutex debugging: basic checks"
+	default n
 	depends on DEBUG_KERNEL
 	help
 	 This feature allows mutex semantics violations to be detected and
@@ -523,6 +525,7 @@ config DEBUG_MUTEXES
 config DEBUG_LOCK_ALLOC
 	bool "Lock debugging: detect incorrect freeing of live locks"
 	depends on DEBUG_KERNEL && TRACE_IRQFLAGS_SUPPORT && STACKTRACE_SUPPORT && LOCKDEP_SUPPORT
+	default n
 	select DEBUG_SPINLOCK
 	select DEBUG_MUTEXES
 	select LOCKDEP
@@ -682,7 +685,7 @@ config DEBUG_LOCKING_API_SELFTESTS
 config STACKTRACE
 	bool "Stacktrace"
 	depends on STACKTRACE_SUPPORT
-	default y
+	default n
 
 config DEBUG_STACK_USAGE
 	bool "Stack utilization instrumentation"
@@ -928,7 +931,7 @@ config RCU_CPU_STALL_TIMEOUT
 config RCU_CPU_STALL_VERBOSE
 	bool "Print additional per-task information for RCU_CPU_STALL_DETECTOR"
 	depends on TREE_PREEMPT_RCU
-	default y
+	default n
 	help
 	  This option causes RCU to printk detailed per-task information
 	  for any tasks that are stalling the current RCU grace period.
