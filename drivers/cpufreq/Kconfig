@@ -635,5 +635,11 @@ config CPU_BOOST_FRAMEWORK
 	  boost the CPU for either a specified duration or
 	  indefinitely (until it is manually unboosted).
 
+config CPU_FREQ_RETAIN_MIN_MAX
+	bool "Retain Min/Max CPU frequencies."
+	default n
+	help
+	  Retain individual CPU Min/Max policies after hotplug.
+
 endif
 endmenu

@@ -30,6 +30,7 @@
 #include <linux/mutex.h>
 #include <linux/syscore_ops.h>
 #include <linux/cpugovsync.h>
+#include <linux/retain_cpu_freq.h>
 
 #include <trace/events/power.h>
 
@@ -428,6 +429,8 @@ static ssize_t store_##file_name					\
 									\
 	ret = __cpufreq_set_policy(policy, &new_policy);		\
 	policy->user_policy.object = policy->object;			\
+									\
+	retain_cpu_freq_policy(policy);					\
 									\
 	return ret ? ret : count;					\
 }
