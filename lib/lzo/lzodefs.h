@@ -11,7 +11,6 @@
  *  Richard Purdie <rpurdie@openedhand.com>
  */
 
-
 #if 1 && defined(__arm__) && ((__LINUX_ARM_ARCH__ >= 6) || defined(__ARM_FEATURE_UNALIGNED))
 #define CONFIG_HAVE_EFFICIENT_UNALIGNED_ACCESS 1
 #define COPY4(dst, src)	\
@@ -35,7 +34,7 @@
 #define LZO_USE_CTZ32	1
 #elif defined(__i386__) || defined(__powerpc__)
 #define LZO_USE_CTZ32	1
-#elif defined(__arm__) && (__LINUX_ARM_ARCH__ >= 5)
+#else
 #define LZO_USE_CTZ32	1
 #endif
 
