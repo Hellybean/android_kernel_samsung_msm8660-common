@@ -45,12 +45,6 @@ static DEFINE_PER_CPU(struct cpufreq_work_struct, cpufreq_work);
 static struct workqueue_struct *msm_cpufreq_wq;
 #endif
 
-#ifdef CONFIG_MSM_CPU_FREQ_SET_MIN_MAX
-/* Because we are hotplugging CPU1 using mpdecision, init should
-   not change min/max after initial fixup to accomodate user changes */
-int cpuinitcount = 0;
-#endif 
-
 struct cpufreq_suspend_t {
 	struct mutex suspend_mutex;
 	int device_suspended;
@@ -367,17 +361,13 @@ static int __cpuinit msm_cpufreq_init(struct cpufreq_policy *policy)
 		return -ENODEV;
 	if (cpufreq_frequency_table_cpuinfo(policy, table)) {
 	#ifdef CONFIG_MSM_CPU_FREQ_SET_MIN_MAX
-	//	if (cpuinitcount < CONFIG_NR_CPUS) {
-			policy->cpuinfo.min_freq = CONFIG_MSM_CPU_FREQ_MIN;
-			policy->cpuinfo.max_freq = CONFIG_MSM_CPU_FREQ_MAX;
-	//	}
+		policy->cpuinfo.min_freq = CONFIG_MSM_CPU_FREQ_MIN;
+		policy->cpuinfo.max_freq = CONFIG_MSM_CPU_FREQ_MAX;
 	#endif
 	}
 #ifdef CONFIG_MSM_CPU_FREQ_SET_MIN_MAX
-	//if (cpuinitcount < CONFIG_NR_CPUS) {
-		policy->min = CONFIG_MSM_CPU_FREQ_MIN;
-		policy->max = CONFIG_MSM_CPU_FREQ_MAX;
-	//}
+	policy->min = CONFIG_MSM_CPU_FREQ_MIN;
+	policy->max = CONFIG_MSM_CPU_FREQ_MAX;
 #endif
 
 	cur_freq = acpuclk_get_rate(policy->cpu);
@@ -410,10 +400,6 @@ static int __cpuinit msm_cpufreq_init(struct cpufreq_policy *policy)
 	INIT_WORK(&cpu_work->work, set_cpu_work);
 	init_completion(&cpu_work->complete);
 #endif
-
-#ifdef CONFIG_MSM_CPU_FREQ_SET_MIN_MAX
-  	cpuinitcount++;
-#endif 
 
 #ifdef CONFIG_MSM_CPU_FREQ_SET_MIN_MAX
 	policy->min = CONFIG_MSM_CPU_FREQ_MIN;
