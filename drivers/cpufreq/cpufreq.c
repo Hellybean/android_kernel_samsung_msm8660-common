@@ -606,24 +606,24 @@ static ssize_t store_scaling_governor(struct cpufreq_policy *policy,
 
 	policy->user_policy.policy = policy->policy;
 	policy->user_policy.governor = policy->governor;
+	#ifdef CONFIG_LINK_CPU_GOVERNORS
+	if (force_cpu_gov_sync != 0) {
+		alt_cpu = policy->cpu ? 0 : 1;
+		if(!cpu_online(alt_cpu)) cpu_up(alt_cpu);
 
-	alt_cpu = policy->cpu ? 0 : 1;
-	if(!cpu_online(alt_cpu))
-		cpu_up(alt_cpu);
+		if(!cpufreq_get_policy(&new_policy, alt_cpu)) {
+			alt_policy=cpufreq_cpu_get(alt_cpu);
 
-	if(!cpufreq_get_policy(&new_policy, alt_cpu)) {
-		alt_policy=cpufreq_cpu_get(alt_cpu);
-
-		if(alt_policy != NULL) {
-			cpufreq_parse_governor(str_governor, &new_policy.policy, &new_policy.governor);
-			__cpufreq_set_policy(alt_policy, &new_policy);
-			alt_policy->user_policy.policy = alt_policy->policy;
-			alt_policy->user_policy.governor = alt_policy->governor;
-			cpufreq_cpu_put(alt_policy);
+			if(alt_policy != NULL) {
+				cpufreq_parse_governor(str_governor, &new_policy.policy, &new_policy.governor);
+				__cpufreq_set_policy(alt_policy, &new_policy);
+				alt_policy->user_policy.policy = alt_policy->policy;
+				alt_policy->user_policy.governor = alt_policy->governor;
+				cpufreq_cpu_put(alt_policy);
+			}
 		}
-	}
 
-	sysfs_notify(&policy->kobj, NULL, "scaling_governor");
+		sysfs_notify(&policy->kobj, NULL, "scaling_governor");
 
 		snprintf(buf1, sizeof(buf1), "GOV=%s", policy->governor->name);
 		snprintf(buf2, sizeof(buf2), "CPU=%u", policy->cpu);
@@ -631,12 +631,11 @@ static ssize_t store_scaling_governor(struct cpufreq_policy *policy,
 		envp[1] = buf2;
 		envp[2] = NULL;
 		kobject_uevent_env(cpufreq_global_kobject, KOBJ_ADD, envp);
-
-		if (ret)
-			return ret;
-		else
-			return count;
 	}
+	#endif
+	if (ret) return ret;
+	else return count;
+}
 
 /**
  * show_scaling_driver - show the cpufreq driver currently loaded
