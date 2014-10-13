@@ -82,6 +82,7 @@ flashable/zip/system/lib/modules
 SCRIPTS
 Cl3Kener
 OUT
+flashable
 updater-script
 zImage
 *.zip
