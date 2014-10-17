@@ -1110,14 +1110,14 @@ config MSM_RPC_SDIO_XPRT
 
 config MSM_RPC_SDIO_DEBUG
 	depends on MSM_RPC_SDIO_XPRT
-	default y
+	default n
 	bool "MSM SDIO XPRT debug support"
 	help
 	  Support for debugging SDIO XPRT
 
 config MSM_SMD_DEBUG
 	depends on MSM_SMD
-	default y
+	default n
 	bool "MSM SMD debug support"
 	help
 	  Support for debugging the SMD for communication
@@ -1173,7 +1173,7 @@ config MSM_RESET_MODEM
 
 config MSM_SMD_LOGGING
 	depends on MSM_SMD
-	default y
+	default n
 	bool "MSM Shared Memory Logger"
 	help
 	  This option exposes the shared memory logger at /dev/smem_log
@@ -1279,7 +1279,7 @@ config MSM_IPC_ROUTER_SMD_XPRT
 
 config MSM_ONCRPCROUTER_DEBUG
 	depends on MSM_ONCRPCROUTER
-	default y
+	default n
 	bool "MSM debug ONCRPC router support"
 	help
 	  Support for debugging the ONCRPC router for communication

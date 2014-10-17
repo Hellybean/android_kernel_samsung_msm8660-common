@@ -29,6 +29,7 @@
 #include <linux/suspend.h>
 #include <mach/socinfo.h>
 #include <mach/cpufreq.h>
+#include <linux/retain_cpu_freq.h>
 
 #include "acpuclock.h"
 
@@ -43,7 +44,7 @@ struct cpufreq_work_struct {
 
 static DEFINE_PER_CPU(struct cpufreq_work_struct, cpufreq_work);
 static struct workqueue_struct *msm_cpufreq_wq;
-#endif 
+#endif
 
 struct cpufreq_suspend_t {
 	struct mutex suspend_mutex;
@@ -346,7 +347,6 @@ EXPORT_SYMBOL(msm_cpufreq_set_freq_limits);
 
 static int __cpuinit msm_cpufreq_init(struct cpufreq_policy *policy)
 {
-	struct cpufreq_policy global_policy;
 	int cur_freq;
 	int index;
 	struct cpufreq_frequency_table *table;
@@ -362,18 +362,10 @@ static int __cpuinit msm_cpufreq_init(struct cpufreq_policy *policy)
 		return -ENODEV;
 	if (cpufreq_frequency_table_cpuinfo(policy, table)) {
 	#ifdef CONFIG_MSM_CPU_FREQ_SET_MIN_MAX
-		if (policy->cpu < CONFIG_NR_CPUS) {
-			policy->cpuinfo.min_freq = CONFIG_MSM_CPU_FREQ_MIN;
-			policy->cpuinfo.max_freq = CONFIG_MSM_CPU_FREQ_MAX;
-		}
+		policy->cpuinfo.min_freq = CONFIG_MSM_CPU_FREQ_MIN;
+		policy->cpuinfo.max_freq = CONFIG_MSM_CPU_FREQ_MAX;
 	#endif
 	}
-#ifdef CONFIG_MSM_CPU_FREQ_SET_MIN_MAX
-	if (policy->cpu < CONFIG_NR_CPUS) {
-		policy->min = CONFIG_MSM_CPU_FREQ_MIN;
-		policy->max = CONFIG_MSM_CPU_FREQ_MAX;
-	}
-#endif
 
 	cur_freq = acpuclk_get_rate(policy->cpu);
 	if (cpufreq_frequency_table_target(policy, table, cur_freq,
@@ -406,16 +398,16 @@ static int __cpuinit msm_cpufreq_init(struct cpufreq_policy *policy)
 	init_completion(&cpu_work->complete);
 #endif
 
-	/* In the scenario that a non-primary core is resuming from a hotplug, retain 
-	  cpu0's min max to avoid being reset back to default min/max. There might be some
-	  underlying issue on why this is not already done natively... but hey I'm just here
-	  for a hotfix.
-	  - Emman */
-	if (policy->cpu >= 1) {
-		cpufreq_get_policy(&global_policy, 0);
-		policy->min = global_policy.min;
-		policy->max = global_policy.max;
+	if(retained_cpu_freq_policy(policy->cpu)) {
+		policy->min = get_retained_min_cpu_freq(policy->cpu);
+		policy->max = get_retained_max_cpu_freq(policy->cpu);
 	}
+	#ifdef CONFIG_MSM_CPU_FREQ_SET_MIN_MAX
+	else{
+		policy->min = CONFIG_MSM_CPU_FREQ_MIN;
+		policy->max = CONFIG_MSM_CPU_FREQ_MAX;
+	}
+	#endif
 
 	return 0;
 }
